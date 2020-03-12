@@ -35,6 +35,7 @@
 //      (IROS). October 2018.
 
 #include "mapOptimization.h"
+#include "dumpGraph.h"
 #include <future>
 
 using namespace gtsam;
@@ -115,6 +116,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
 MapOptimization::~MapOptimization()
 {
+  dump("/tmp/dump", *isam, isamCurrentEstimate, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames);
   _input_channel.send({});
   _run_thread.join();
 
