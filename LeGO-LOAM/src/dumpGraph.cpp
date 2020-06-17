@@ -1,5 +1,6 @@
 #include "dumpGraph.h"
 
+#include <ros/time.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/transforms.h>
 
@@ -7,45 +8,14 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/BetweenFactor.h>
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr transformPointCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIn, const gtsam::Pose3& transformIn) {
-  pcl::PointCloud<pcl::PointXYZI>::Ptr cloudOut(new pcl::PointCloud<pcl::PointXYZI>());
-
-  double roll = transformIn.rotation().pitch();
-  double pitch = transformIn.rotation().yaw();
-  double yaw = transformIn.rotation().roll();
-
-  pcl::PointXYZI* pointFrom;
-  pcl::PointXYZI pointTo;
-
-  int cloudSize = cloudIn->points.size();
-  cloudOut->resize(cloudSize);
-
-  for(int i = 0; i < cloudSize; ++i) {
-    pointFrom = &cloudIn->points[i];
-    float x1 = cos(yaw) * pointFrom->x - sin(yaw) * pointFrom->y;
-    float y1 = sin(yaw) * pointFrom->x + cos(yaw) * pointFrom->y;
-    float z1 = pointFrom->z;
-
-    float x2 = x1;
-    float y2 = cos(roll) * y1 - sin(roll) * z1;
-    float z2 = sin(roll) * y1 + cos(roll) * z1;
-
-    pointTo.x = cos(pitch) * x2 + sin(pitch) * z2 + transformIn.x();
-    pointTo.y = y2 + transformIn.y();
-    pointTo.z = -sin(pitch) * x2 + cos(pitch) * z2 + transformIn.z();
-    pointTo.intensity = pointFrom->intensity;
-
-    cloudOut->points[i] = pointTo;
-  }
-
-  cloudOut->width = cloudOut->size();
-  cloudOut->height = 1;
-  cloudOut->is_dense = false;
-
-  return cloudOut;
-}
-
-void dump(const std::string& dump_directory, const gtsam::ISAM2& isam, const gtsam::Values& isam_current_estimate, std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> corner_cloud_keyframes, std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> surf_cloud_keyframes, std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> outlier_cloud_keyframes) {
+void dump(const std::string& dump_directory,
+  const gtsam::ISAM2& isam,
+  const gtsam::Values& isam_current_estimate,
+  const std::vector<double>& keyframe_stamps,
+  const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
+  const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
+  const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes
+) {
   boost::filesystem::create_directories(dump_directory);
 
   std::vector<gtsam::Pose3> keyframe_poses(isam_current_estimate.size());
@@ -100,8 +70,10 @@ void dump(const std::string& dump_directory, const gtsam::ISAM2& isam, const gts
     // cloud = transformPointCloud(cloud, keyframe_poses[i]);
     pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *transformed);
 
+    ros::Time stamp(keyframe_stamps[i]);
+
     std::ofstream data_ofs(keyframe_directory + "/data");
-    data_ofs << "stamp 0 " << i << "\n";
+    data_ofs << "stamp " << stamp.sec << " " << stamp.nsec << "\n";
     data_ofs << "estimate\n" << keyframe_poses[i].matrix() << "\n";
     data_ofs << "odom\n" << keyframe_poses[i].matrix() << "\n";
     data_ofs << "accum_distance -1" << "\n";

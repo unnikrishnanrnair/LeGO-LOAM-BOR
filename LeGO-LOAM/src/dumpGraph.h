@@ -6,7 +6,8 @@
 void dump(
     const std::string& dump_directory, const gtsam::ISAM2& isam,
     const gtsam::Values& isam_current_estimate,
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> corner_cloud_keyframes,
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> surf_cloud_keyframes,
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> outlier_cloud_keyframes
+    const std::vector<double>& keyframe_stamps,
+    const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
+    const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
+    const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes
 );
