@@ -121,7 +121,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
 MapOptimization::~MapOptimization()
 {
-  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames);
+  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames, cloudKeyPoses3D);
   _input_channel.send({});
   _run_thread.join();
 
@@ -566,11 +566,11 @@ void MapOptimization::publishGlobalMap() {
   for (int i = 0; i < globalMapKeyPosesDS->points.size(); ++i) {
     int thisKeyInd = (int)globalMapKeyPosesDS->points[i].intensity;
     *globalMapKeyFrames += *transformPointCloud(
-        cornerCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
+        getCornerCloudKeyFrame(thisKeyInd), &cloudKeyPoses6D->points[thisKeyInd]);
     *globalMapKeyFrames += *transformPointCloud(
-        surfCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
+        getSurfCloudKeyFrame(thisKeyInd), &cloudKeyPoses6D->points[thisKeyInd]);
     *globalMapKeyFrames +=
-        *transformPointCloud(outlierCloudKeyFrames[thisKeyInd],
+        *transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd),
                              &cloudKeyPoses6D->points[thisKeyInd]);
   }
   // downsample visualized points
@@ -617,10 +617,10 @@ bool MapOptimization::detectLoopClosure() {
   // save latest key frames
   latestFrameIDLoopCloure = cloudKeyPoses3D->points.size() - 1;
   *latestSurfKeyFrameCloud +=
-      *transformPointCloud(cornerCloudKeyFrames[latestFrameIDLoopCloure],
+      *transformPointCloud(getCornerCloudKeyFrame(latestFrameIDLoopCloure),
                            &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
   *latestSurfKeyFrameCloud +=
-      *transformPointCloud(surfCloudKeyFrames[latestFrameIDLoopCloure],
+      *transformPointCloud(getSurfCloudKeyFrame(latestFrameIDLoopCloure),
                            &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
 
   pcl::PointCloud<PointType>::Ptr hahaCloud(new pcl::PointCloud<PointType>());
@@ -638,10 +638,10 @@ bool MapOptimization::detectLoopClosure() {
         closestHistoryFrameID + j > latestFrameIDLoopCloure)
       continue;
     *nearHistorySurfKeyFrameCloud += *transformPointCloud(
-        cornerCloudKeyFrames[closestHistoryFrameID + j],
+        getCornerCloudKeyFrame(closestHistoryFrameID + j),
         &cloudKeyPoses6D->points[closestHistoryFrameID + j]);
     *nearHistorySurfKeyFrameCloud += *transformPointCloud(
-        surfCloudKeyFrames[closestHistoryFrameID + j],
+        getSurfCloudKeyFrame(closestHistoryFrameID + j),
         &cloudKeyPoses6D->points[closestHistoryFrameID + j]);
   }
 
@@ -751,60 +751,60 @@ void MapOptimization::performLoopClosure() {
 void MapOptimization::extractSurroundingKeyFrames() {
   if (cloudKeyPoses3D->points.empty() == true) return;
 
-  if (_loop_closure_enabled == true) {
-    // only use recent key poses for graph building
-    if (recentCornerCloudKeyFrames.size() <
-        _surrounding_keyframe_search_num) {  // queue is not full (the beginning
-                                         // of mapping or a loop is just
-                                         // closed)
-                                         // clear recent key frames queue
-      recentCornerCloudKeyFrames.clear();
-      recentSurfCloudKeyFrames.clear();
-      recentOutlierCloudKeyFrames.clear();
-      int numPoses = cloudKeyPoses3D->points.size();
-      for (int i = numPoses - 1; i >= 0; --i) {
-        int thisKeyInd = (int)cloudKeyPoses3D->points[i].intensity;
-        PointTypePose thisTransformation = cloudKeyPoses6D->points[thisKeyInd];
-        updateTransformPointCloudSinCos(&thisTransformation);
-        // extract surrounding map
-        recentCornerCloudKeyFrames.push_front(
-            transformPointCloud(cornerCloudKeyFrames[thisKeyInd]));
-        recentSurfCloudKeyFrames.push_front(
-            transformPointCloud(surfCloudKeyFrames[thisKeyInd]));
-        recentOutlierCloudKeyFrames.push_front(
-            transformPointCloud(outlierCloudKeyFrames[thisKeyInd]));
-        if (recentCornerCloudKeyFrames.size() >= _surrounding_keyframe_search_num)
-          break;
-      }
-    } else {  // queue is full, pop the oldest key frame and push the latest
-              // key frame
-      if (latestFrameID != cloudKeyPoses3D->points.size()-1) {
-        // if the robot is not moving, no need to
-        // update recent frames
+  // if (_loop_closure_enabled == true) {
+  //   // only use recent key poses for graph building
+  //   if (recentCornerCloudKeyFrames.size() <
+  //       _surrounding_keyframe_search_num) {  // queue is not full (the beginning
+  //                                        // of mapping or a loop is just
+  //                                        // closed)
+  //                                        // clear recent key frames queue
+  //     recentCornerCloudKeyFrames.clear();
+  //     recentSurfCloudKeyFrames.clear();
+  //     recentOutlierCloudKeyFrames.clear();
+  //     int numPoses = cloudKeyPoses3D->points.size();
+  //     for (int i = numPoses - 1; i >= 0; --i) {
+  //       int thisKeyInd = (int)cloudKeyPoses3D->points[i].intensity;
+  //       PointTypePose thisTransformation = cloudKeyPoses6D->points[thisKeyInd];
+  //       updateTransformPointCloudSinCos(&thisTransformation);
+  //       // extract surrounding map
+  //       recentCornerCloudKeyFrames.push_front(
+  //           transformPointCloud(cornerCloudKeyFrames[thisKeyInd]));
+  //       recentSurfCloudKeyFrames.push_front(
+  //           transformPointCloud(surfCloudKeyFrames[thisKeyInd]));
+  //       recentOutlierCloudKeyFrames.push_front(
+  //           transformPointCloud(outlierCloudKeyFrames[thisKeyInd]));
+  //       if (recentCornerCloudKeyFrames.size() >= _surrounding_keyframe_search_num)
+  //         break;
+  //     }
+  //   } else {  // queue is full, pop the oldest key frame and push the latest
+  //             // key frame
+  //     if (latestFrameID != cloudKeyPoses3D->points.size()-1) {
+  //       // if the robot is not moving, no need to
+  //       // update recent frames
 
-        recentCornerCloudKeyFrames.pop_front();
-        recentSurfCloudKeyFrames.pop_front();
-        recentOutlierCloudKeyFrames.pop_front();
-        // push latest scan to the end of queue
-        latestFrameID = cloudKeyPoses3D->points.size() - 1;
-        PointTypePose thisTransformation =
-            cloudKeyPoses6D->points[latestFrameID];
-        updateTransformPointCloudSinCos(&thisTransformation);
-        recentCornerCloudKeyFrames.push_back(
-            transformPointCloud(cornerCloudKeyFrames[latestFrameID]));
-        recentSurfCloudKeyFrames.push_back(
-            transformPointCloud(surfCloudKeyFrames[latestFrameID]));
-        recentOutlierCloudKeyFrames.push_back(
-            transformPointCloud(outlierCloudKeyFrames[latestFrameID]));
-      }
-    }
+  //       recentCornerCloudKeyFrames.pop_front();
+  //       recentSurfCloudKeyFrames.pop_front();
+  //       recentOutlierCloudKeyFrames.pop_front();
+  //       // push latest scan to the end of queue
+  //       latestFrameID = cloudKeyPoses3D->points.size() - 1;
+  //       PointTypePose thisTransformation =
+  //           cloudKeyPoses6D->points[latestFrameID];
+  //       updateTransformPointCloudSinCos(&thisTransformation);
+  //       recentCornerCloudKeyFrames.push_back(
+  //           transformPointCloud(cornerCloudKeyFrames[latestFrameID]));
+  //       recentSurfCloudKeyFrames.push_back(
+  //           transformPointCloud(surfCloudKeyFrames[latestFrameID]));
+  //       recentOutlierCloudKeyFrames.push_back(
+  //           transformPointCloud(outlierCloudKeyFrames[latestFrameID]));
+  //     }
+  //   }
 
-    for (int i = 0; i < recentCornerCloudKeyFrames.size(); ++i) {
-      *laserCloudCornerFromMap += *recentCornerCloudKeyFrames[i];
-      *laserCloudSurfFromMap += *recentSurfCloudKeyFrames[i];
-      *laserCloudSurfFromMap += *recentOutlierCloudKeyFrames[i];
-    }
-  } else {
+  //   for (int i = 0; i < recentCornerCloudKeyFrames.size(); ++i) {
+  //     *laserCloudCornerFromMap += *recentCornerCloudKeyFrames[i];
+  //     *laserCloudSurfFromMap += *recentSurfCloudKeyFrames[i];
+  //     *laserCloudSurfFromMap += *recentOutlierCloudKeyFrames[i];
+  //   }
+  // } else {
     surroundingKeyPoses->clear();
     surroundingKeyPosesDS->clear();
     // extract all the nearby key poses and downsample them
@@ -862,11 +862,11 @@ void MapOptimization::extractSurroundingKeyFrames() {
         updateTransformPointCloudSinCos(&thisTransformation);
         surroundingExistingKeyPosesID.push_back(thisKeyInd);
         surroundingCornerCloudKeyFrames.push_back(
-            transformPointCloud(cornerCloudKeyFrames[thisKeyInd]));
+            transformPointCloud(getCornerCloudKeyFrame(thisKeyInd)));
         surroundingSurfCloudKeyFrames.push_back(
-            transformPointCloud(surfCloudKeyFrames[thisKeyInd]));
+            transformPointCloud(getSurfCloudKeyFrame(thisKeyInd));
         surroundingOutlierCloudKeyFrames.push_back(
-            transformPointCloud(outlierCloudKeyFrames[thisKeyInd]));
+            transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd));
       }
     }
 
@@ -875,7 +875,7 @@ void MapOptimization::extractSurroundingKeyFrames() {
       *laserCloudSurfFromMap += *surroundingSurfCloudKeyFrames[i];
       *laserCloudSurfFromMap += *surroundingOutlierCloudKeyFrames[i];
     }
-  }
+  // }
   // Downsample the surrounding corner key frames (or map)
   downSizeFilterCorner.setInputCloud(laserCloudCornerFromMap);
   downSizeFilterCorner.filter(*laserCloudCornerFromMapDS);
