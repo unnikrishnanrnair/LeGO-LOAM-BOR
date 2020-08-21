@@ -2,6 +2,7 @@
 #include <pcl/point_cloud.h>
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam/nonlinear/Values.h>
+#include "lego_loam/utility.h"
 
 void dump(
     const std::string& dump_directory, const gtsam::ISAM2& isam,
@@ -10,5 +11,6 @@ void dump(
     const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
     const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
     const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes,
-    const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D,
+    const pcl::PointCloud<PointTypePose>::Ptr& cloudKeyPoses6D
 );

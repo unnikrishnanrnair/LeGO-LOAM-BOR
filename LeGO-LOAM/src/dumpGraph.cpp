@@ -15,7 +15,8 @@ void dump(const std::string& dump_directory,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes,
-  const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D
+  const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D,
+  const pcl::PointCloud<PointTypePose>::Ptr& cloudKeyPoses6D
 ) {
   boost::filesystem::create_directories(dump_directory);
 
@@ -97,4 +98,5 @@ void dump(const std::string& dump_directory,
   }
 
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses3D.pcd", *cloudKeyPoses3D);
+  pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses6D.pcd", *cloudKeyPoses6D);
 }
