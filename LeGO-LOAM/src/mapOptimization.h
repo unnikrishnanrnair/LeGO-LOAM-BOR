@@ -105,6 +105,8 @@ class MapOptimization {
 
   pcl::PointCloud<PointType>::Ptr cloudKeyPoses3D;
   pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
+  pcl::PointCloud<PointType>::Ptr cloudKeyPoses3DGlobal;
+  pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6DGlobal;
 
   pcl::PointCloud<PointType>::Ptr surroundingKeyPoses;
   pcl::PointCloud<PointType>::Ptr surroundingKeyPosesDS;

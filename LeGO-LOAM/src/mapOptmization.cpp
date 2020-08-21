@@ -117,6 +117,12 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
   _loop_closure_thread = std::thread(&MapOptimization::loopClosureThread, this);
   _run_thread = std::thread(&MapOptimization::run, this);
 
+  // Read saved cloudKeyPose3D and cloudKeyPose6D
+  std::string cloudKeyPoses3DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses3D.pcd") % index).str();
+  pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses3DGlobal);
+  std::string cloudKeyPoses6DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses6D.pcd") % index).str();
+  pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses6DGlobal);
+
 }
 
 MapOptimization::~MapOptimization()
@@ -135,6 +141,8 @@ MapOptimization::~MapOptimization()
 void MapOptimization::allocateMemory() {
   cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
   cloudKeyPoses6D.reset(new pcl::PointCloud<PointTypePose>());
+  cloudKeyPoses3DGlobal.reset(new pcl::PointCloud<PointType>());
+  cloudKeyPoses6DGlobal.reset(new pcl::PointCloud<PointTypePose>());
 
   surroundingKeyPoses.reset(new pcl::PointCloud<PointType>());
   surroundingKeyPosesDS.reset(new pcl::PointCloud<PointType>());
@@ -808,14 +816,14 @@ void MapOptimization::extractSurroundingKeyFrames() {
     surroundingKeyPoses->clear();
     surroundingKeyPosesDS->clear();
     // extract all the nearby key poses and downsample them
-    kdtreeSurroundingKeyPoses.setInputCloud(cloudKeyPoses3D);
+    kdtreeSurroundingKeyPoses.setInputCloud(cloudKeyPoses3DGlobal);
     kdtreeSurroundingKeyPoses.radiusSearch(
         currentRobotPosPoint, (double)_surrounding_keyframe_search_radius,
         pointSearchInd, pointSearchSqDis);
 
     for (int i = 0; i < pointSearchInd.size(); ++i){
       surroundingKeyPoses->points.push_back(
-          cloudKeyPoses3D->points[pointSearchInd[i]]);
+          cloudKeyPoses3DGlobal->points[pointSearchInd[i]]);
     }
 
     downSizeFilterSurroundingKeyPoses.setInputCloud(surroundingKeyPoses);
@@ -858,15 +866,15 @@ void MapOptimization::extractSurroundingKeyFrames() {
         continue;
       } else {
         int thisKeyInd = (int)surroundingKeyPosesDS->points[i].intensity;
-        PointTypePose thisTransformation = cloudKeyPoses6D->points[thisKeyInd];
+        PointTypePose thisTransformation = cloudKeyPoses6DGlobal->points[thisKeyInd];
         updateTransformPointCloudSinCos(&thisTransformation);
         surroundingExistingKeyPosesID.push_back(thisKeyInd);
         surroundingCornerCloudKeyFrames.push_back(
             transformPointCloud(getCornerCloudKeyFrame(thisKeyInd)));
         surroundingSurfCloudKeyFrames.push_back(
-            transformPointCloud(getSurfCloudKeyFrame(thisKeyInd));
+            transformPointCloud(getSurfCloudKeyFrame(thisKeyInd)));
         surroundingOutlierCloudKeyFrames.push_back(
-            transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd));
+            transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd)));
       }
     }
 
