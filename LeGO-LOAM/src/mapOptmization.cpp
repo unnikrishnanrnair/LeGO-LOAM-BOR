@@ -1432,3 +1432,24 @@ void MapOptimization::run() {
     }
   }
 }
+
+pcl::PointCloud<PointType>::Ptr MapOptimization::getCornerCloudKeyFrame(int index){
+  pcl::PointCloud<PointType>::Ptr tempCloud;
+  pcl::PCDReader::read((boost::format("/tmp/dump/%06d/cloud_corner.pcd") % index).str(), tempCloud)
+
+  return tempCloud;
+}
+
+pcl::PointCloud<PointType>::Ptr MapOptimization::getSurfCloudKeyFrame(int index){
+  pcl::PointCloud<PointType>::Ptr tempCloud;
+  pcl::PCDReader::read((boost::format("/tmp/dump/%06d/cloud_surf.pcd") % index).str(), tempCloud)
+
+  return tempCloud;
+}
+
+pcl::PointCloud<PointType>::Ptr MapOptimization::getOutlierCloudKeyFrame(int index){
+  pcl::PointCloud<PointType>::Ptr tempCloud;
+  pcl::PCDReader::read((boost::format("/tmp/dump/%06d/cloud_outlier.pcd") % index).str(), tempCloud)
+
+  return tempCloud;
+}

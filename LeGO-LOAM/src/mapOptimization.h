@@ -254,6 +254,10 @@ class MapOptimization {
   void correctPoses();
 
   void clearCloud();
+
+  pcl::PointCloud<PointType>::Ptr getCornerCloudKeyFrame(int index);
+  pcl::PointCloud<PointType>::Ptr getSurfCloudKeyFrame(int index);
+  pcl::PointCloud<PointType>::Ptr getOutlierCloudKeyFrame(int index);
 };
 
 #endif // MAPOPTIMIZATION_H
