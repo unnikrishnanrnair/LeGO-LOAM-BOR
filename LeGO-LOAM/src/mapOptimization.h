@@ -14,6 +14,7 @@
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/PriorFactor.h>
 #include <gtsam/nonlinear/ISAM2.h>
+#include <pcl/io/pcd_io.h>
 
 inline gtsam::Pose3 pclPointTogtsamPose3(PointTypePose thisPoint) {
   // camera frame to lidar frame
@@ -254,6 +255,10 @@ class MapOptimization {
   void correctPoses();
 
   void clearCloud();
+
+  pcl::PointCloud<PointType>::Ptr getCornerCloudKeyFrame(int index);
+  pcl::PointCloud<PointType>::Ptr getSurfCloudKeyFrame(int index);
+  pcl::PointCloud<PointType>::Ptr getOutlierCloudKeyFrame(int index);
 };
 
 #endif // MAPOPTIMIZATION_H

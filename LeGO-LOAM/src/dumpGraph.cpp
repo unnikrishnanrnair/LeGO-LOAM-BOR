@@ -14,7 +14,8 @@ void dump(const std::string& dump_directory,
   const std::vector<double>& keyframe_stamps,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
-  const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes
+  const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes,
+  const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D
 ) {
   boost::filesystem::create_directories(dump_directory);
 
@@ -57,7 +58,13 @@ void dump(const std::string& dump_directory,
     std::string keyframe_directory = (boost::format("%s/%06d") % dump_directory % i).str();
     boost::filesystem::create_directories(keyframe_directory);
 
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_corner(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_surf(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_outlier(new pcl::PointCloud<pcl::PointXYZI>);
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+    *cloud_corner += *corner_cloud_keyframes[i];
+    *cloud_surf += *surf_cloud_keyframes[i];
+    *cloud_outlier += *outlier_cloud_keyframes[i];
     *cloud += *corner_cloud_keyframes[i];
     *cloud += *surf_cloud_keyframes[i];
     *cloud += *outlier_cloud_keyframes[i];
@@ -65,10 +72,19 @@ void dump(const std::string& dump_directory,
     Eigen::Isometry3f camera2lidar = Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(M_PI / 2.0, Eigen::Vector3f::UnitY()) * Eigen::Isometry3f::Identity();
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZI>());
+    
     pcl::transformPointCloud(*cloud, *transformed, camera2lidar);
-
-    // cloud = transformPointCloud(cloud, keyframe_poses[i]);
     pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *transformed);
+
+    pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
+    // cloud = transformPointCloud(cloud, keyframe_poses[i]);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *transformed);
+
+    pcl::transformPointCloud(*cloud_surf, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *transformed);
+
+    pcl::transformPointCloud(*cloud_outlier, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *transformed);
 
     ros::Time stamp(keyframe_stamps[i]);
 
@@ -79,4 +95,6 @@ void dump(const std::string& dump_directory,
     data_ofs << "accum_distance -1" << "\n";
     data_ofs << "id " << i << "\n";
   }
+
+  pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses3D.pcd", *cloudKeyPoses3D);
 }

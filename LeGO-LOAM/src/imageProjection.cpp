@@ -80,7 +80,7 @@ ImageProjection::ImageProjection(ros::NodeHandle& nh,
 
   const size_t cloud_size = _vertical_scans * _horizontal_scans;
 
-  _laser_cloud_in.reset(new pcl::PointCloud<PointType>());
+  _laser_cloud_in.reset(new pcl::PointCloud<PointType2>());
   _full_cloud.reset(new pcl::PointCloud<PointType>());
   _full_info_cloud.reset(new pcl::PointCloud<PointType>());
 
@@ -157,7 +157,10 @@ void ImageProjection::projectPointCloud() {
   const size_t cloudSize = _laser_cloud_in->points.size();
 
   for (size_t i = 0; i < cloudSize; ++i) {
-    PointType thisPoint = _laser_cloud_in->points[i];
+    PointType thisPoint;
+    thisPoint.x = _laser_cloud_in->points[i].x;
+    thisPoint.y = _laser_cloud_in->points[i].y;
+    thisPoint.z = _laser_cloud_in->points[i].z;
 
     float range = sqrt(thisPoint.x * thisPoint.x +
                        thisPoint.y * thisPoint.y +
