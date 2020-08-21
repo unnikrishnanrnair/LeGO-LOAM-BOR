@@ -42,6 +42,7 @@
 #include <mutex>
 
 typedef pcl::PointXYZI  PointType;
+typedef pcl::PointXYZ  PointType2;
 
 typedef Eigen::Vector3f Vector3;
 
