@@ -24,7 +24,7 @@ class ImageProjection {
   void labelComponents(int row, int col);
   void publishClouds();
 
-  pcl::PointCloud<PointType>::Ptr _laser_cloud_in;
+  pcl::PointCloud<PointType2>::Ptr _laser_cloud_in;
 
   pcl::PointCloud<PointType>::Ptr _full_cloud;
   pcl::PointCloud<PointType>::Ptr _full_info_cloud;

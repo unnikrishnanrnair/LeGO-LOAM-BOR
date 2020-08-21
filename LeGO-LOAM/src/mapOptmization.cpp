@@ -121,7 +121,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
 MapOptimization::~MapOptimization()
 {
-  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames);
+  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames, cloudKeyPoses3D);
   _input_channel.send({});
   _run_thread.join();
 
