@@ -574,11 +574,11 @@ void MapOptimization::publishGlobalMap() {
   for (int i = 0; i < globalMapKeyPosesDS->points.size(); ++i) {
     int thisKeyInd = (int)globalMapKeyPosesDS->points[i].intensity;
     *globalMapKeyFrames += *transformPointCloud(
-        getCornerCloudKeyFrame(thisKeyInd), &cloudKeyPoses6D->points[thisKeyInd]);
+        cornerCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
     *globalMapKeyFrames += *transformPointCloud(
-        getSurfCloudKeyFrame(thisKeyInd), &cloudKeyPoses6D->points[thisKeyInd]);
+        surfCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
     *globalMapKeyFrames +=
-        *transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd),
+        *transformPointCloud(outlierCloudKeyFrames[thisKeyInd],
                              &cloudKeyPoses6D->points[thisKeyInd]);
   }
   // downsample visualized points
@@ -594,7 +594,7 @@ void MapOptimization::publishGlobalMap() {
   globalMapKeyPoses->clear();
   globalMapKeyPosesDS->clear();
   globalMapKeyFrames->clear();
-  //globalMapKeyFramesDS->clear();
+  globalMapKeyFramesDS->clear();
 }
 
 bool MapOptimization::detectLoopClosure() {
@@ -625,10 +625,10 @@ bool MapOptimization::detectLoopClosure() {
   // save latest key frames
   latestFrameIDLoopCloure = cloudKeyPoses3D->points.size() - 1;
   *latestSurfKeyFrameCloud +=
-      *transformPointCloud(getCornerCloudKeyFrame(latestFrameIDLoopCloure),
+      *transformPointCloud(cornerCloudKeyFrames[latestFrameIDLoopCloure],
                            &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
   *latestSurfKeyFrameCloud +=
-      *transformPointCloud(getSurfCloudKeyFrame(latestFrameIDLoopCloure),
+      *transformPointCloud(surfCloudKeyFrames[latestFrameIDLoopCloure],
                            &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
 
   pcl::PointCloud<PointType>::Ptr hahaCloud(new pcl::PointCloud<PointType>());
@@ -646,10 +646,10 @@ bool MapOptimization::detectLoopClosure() {
         closestHistoryFrameID + j > latestFrameIDLoopCloure)
       continue;
     *nearHistorySurfKeyFrameCloud += *transformPointCloud(
-        getCornerCloudKeyFrame(closestHistoryFrameID + j),
+        cornerCloudKeyFrames[closestHistoryFrameID + j],
         &cloudKeyPoses6D->points[closestHistoryFrameID + j]);
     *nearHistorySurfKeyFrameCloud += *transformPointCloud(
-        getSurfCloudKeyFrame(closestHistoryFrameID + j),
+        surfCloudKeyFrames[closestHistoryFrameID + j],
         &cloudKeyPoses6D->points[closestHistoryFrameID + j]);
   }
 
@@ -775,12 +775,12 @@ void MapOptimization::extractSurroundingKeyFrames() {
   //       PointTypePose thisTransformation = cloudKeyPoses6D->points[thisKeyInd];
   //       updateTransformPointCloudSinCos(&thisTransformation);
   //       // extract surrounding map
-  //       recentCornerCloudKeyFrames.push_front(
-  //           transformPointCloud(cornerCloudKeyFrames[thisKeyInd]));
-  //       recentSurfCloudKeyFrames.push_front(
-  //           transformPointCloud(surfCloudKeyFrames[thisKeyInd]));
-  //       recentOutlierCloudKeyFrames.push_front(
-  //           transformPointCloud(outlierCloudKeyFrames[thisKeyInd]));
+  //       recentCornerCloudKeyFrames.push_back(
+  //           transformPointCloud(getCornerCloudKeyFrame(thisKeyInd)));
+  //       recentSurfCloudKeyFrames.push_back(
+  //           transformPointCloud(getSurfCloudKeyFrame(thisKeyInd)));
+  //       recentOutlierCloudKeyFrames.push_back(
+  //           transformPointCloud(getOutlierCloudKeyFrame(thisKeyInd)));
   //       if (recentCornerCloudKeyFrames.size() >= _surrounding_keyframe_search_num)
   //         break;
   //     }
@@ -799,11 +799,11 @@ void MapOptimization::extractSurroundingKeyFrames() {
   //           cloudKeyPoses6D->points[latestFrameID];
   //       updateTransformPointCloudSinCos(&thisTransformation);
   //       recentCornerCloudKeyFrames.push_back(
-  //           transformPointCloud(cornerCloudKeyFrames[latestFrameID]));
+  //           transformPointCloud(getCornerCloudKeyFrame(latestFrameID)));
   //       recentSurfCloudKeyFrames.push_back(
-  //           transformPointCloud(surfCloudKeyFrames[latestFrameID]));
+  //           transformPointCloud(getSurfCloudKeyFrame(latestFrameID)));
   //       recentOutlierCloudKeyFrames.push_back(
-  //           transformPointCloud(outlierCloudKeyFrames[latestFrameID]));
+  //           transformPointCloud(getOutlierCloudKeyFrame(latestFrameID)));
   //     }
   //   }
 
@@ -1442,6 +1442,7 @@ void MapOptimization::run() {
 }
 
 pcl::PointCloud<PointType>::Ptr MapOptimization::getCornerCloudKeyFrame(int index){
+  // std::cout<<index<<std::endl;
   std::string cloudDir = (boost::format("/tmp/dump/%06d/cloud_corner.pcd") % index).str();
   pcl::PointCloud<PointType>::Ptr tempCloud (new pcl::PointCloud<PointType>);
   pcl::io::loadPCDFile<PointType> (cloudDir, *tempCloud);
