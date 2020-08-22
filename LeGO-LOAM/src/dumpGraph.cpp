@@ -70,22 +70,22 @@ void dump(const std::string& dump_directory,
     *cloud += *surf_cloud_keyframes[i];
     *cloud += *outlier_cloud_keyframes[i];
 
-    Eigen::Isometry3f camera2lidar = Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(M_PI / 2.0, Eigen::Vector3f::UnitY()) * Eigen::Isometry3f::Identity();
+    // Eigen::Isometry3f camera2lidar = Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(M_PI / 2.0, Eigen::Vector3f::UnitY()) * Eigen::Isometry3f::Identity();
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZI>());
+    // pcl::PointCloud<pcl::PointXYZI>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZI>());
     
-    pcl::transformPointCloud(*cloud, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *transformed);
+    // pcl::transformPointCloud(*cloud, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *cloud);
 
-    pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
+    // pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
     // cloud = transformPointCloud(cloud, keyframe_poses[i]);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *transformed);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *cloud_corner);
 
-    pcl::transformPointCloud(*cloud_surf, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *transformed);
+    // pcl::transformPointCloud(*cloud_surf, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *cloud_surf);
 
-    pcl::transformPointCloud(*cloud_outlier, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *transformed);
+    // pcl::transformPointCloud(*cloud_outlier, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *cloud_outlier);
 
     ros::Time stamp(keyframe_stamps[i]);
 
