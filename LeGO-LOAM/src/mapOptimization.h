@@ -62,6 +62,8 @@ class MapOptimization {
   float _history_keyframe_fitness_score;
   float _global_map_visualization_search_radius;
 
+  int cloudKeyPose3DSize;
+
   Channel<AssociationOut>& _input_channel;
   std::thread _run_thread;
 
@@ -85,10 +87,10 @@ class MapOptimization {
   tf::StampedTransform aftMappedTrans;
   tf::TransformBroadcaster tfBroadcaster;
 
-  std::vector<double> keyframeStamps;
-  std::vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
-  std::vector<pcl::PointCloud<PointType>::Ptr> surfCloudKeyFrames;
-  std::vector<pcl::PointCloud<PointType>::Ptr> outlierCloudKeyFrames;
+//   std::vector<double> keyframeStamps;
+//   std::vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
+//   std::vector<pcl::PointCloud<PointType>::Ptr> surfCloudKeyFrames;
+//   std::vector<pcl::PointCloud<PointType>::Ptr> outlierCloudKeyFrames;
 
   std::deque<pcl::PointCloud<PointType>::Ptr> recentCornerCloudKeyFrames;
   std::deque<pcl::PointCloud<PointType>::Ptr> recentSurfCloudKeyFrames;
@@ -103,8 +105,8 @@ class MapOptimization {
   PointType previousRobotPosPoint;
   PointType currentRobotPosPoint;
 
-  pcl::PointCloud<PointType>::Ptr cloudKeyPoses3D;
-  pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
+//   pcl::PointCloud<PointType>::Ptr cloudKeyPoses3D;
+//   pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
   pcl::PointCloud<PointType>::Ptr cloudKeyPoses3DGlobal;
   pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6DGlobal;
 
