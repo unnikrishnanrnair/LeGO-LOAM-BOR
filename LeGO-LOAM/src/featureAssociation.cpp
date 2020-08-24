@@ -77,7 +77,11 @@ FeatureAssociation::FeatureAssociation(ros::NodeHandle &node,
   nh.getParam("/lego_loam/featureAssociation/nearest_feature_search_distance", nearest_dist);
   _nearest_feature_dist_sqr = nearest_dist*nearest_dist;
 
+  intialPoseDone = false;
+
   initializationValue();
+
+  subInitalPose = nh.subscribe("/tf/odometry", 10, subInitalPoseCallback)
 
  _run_thread = std::thread (&FeatureAssociation::runFeatureAssociation, this);
 }
@@ -1330,5 +1334,25 @@ void FeatureAssociation::runFeatureAssociation() {
 
       _output_channel.send(std::move(out));
     }
+  }
+}
+
+void FeatureAssociation::subInitalPoseCallback(const nav_msgs::Odometry::ConstPtr& msg){
+  if(!intialPoseDone){
+    
+    double init_pose_r, init_pose_p, init_pose_y;
+
+    geometry_msgs::Quaternion geoQuat = msg->pose.pose.orientation;
+    tf::Matrix3x3(tf::Quaternion(geoQuat.x, geoQuat.y, geoQuat.z, geoQuat.w)).getRPY(init_pose_r, init_pose_p, init_pose_y);
+
+    transformSum[0] = init_pose_p;
+    transformSum[1] = init_pose_y;
+    transformSum[2] = init_pose_r;
+    transformSum[3] = msg->pose.pose.position.y;
+    transformSum[4] = msg->pose.pose.position.y;
+    transformSum[5] = msg->pose.pose.position.y;
+
+    intialPoseDone=true;
+
   }
 }

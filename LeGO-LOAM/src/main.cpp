@@ -2,6 +2,7 @@
 #include "imageProjection.h"
 #include "mapOptimization.h"
 #include "transformFusion.h"
+#include "poseInitialization.h"
 #include <chrono>
 
 #include <rosbag/bag.h>
@@ -45,6 +46,8 @@ int main(int argc, char** argv) {
   MapOptimization MO(nh, association_out_channel);
 
   TransformFusion TF(nh);
+
+  PoseInitialization PINIT(nh);
 
   ROS_INFO("\033[1;32m---->\033[0m LeGO-LOAM Started.");
 
