@@ -16,6 +16,10 @@
 #include <gtsam/nonlinear/ISAM2.h>
 #include <pcl/io/pcd_io.h>
 
+#include <iostream>
+#include <fstream>
+#include <tf/transform_listener.h>
+
 inline gtsam::Pose3 pclPointTogtsamPose3(PointTypePose thisPoint) {
   // camera frame to lidar frame
   return gtsam::Pose3(
@@ -109,6 +113,8 @@ class MapOptimization {
 //   pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
   pcl::PointCloud<PointType>::Ptr cloudKeyPoses3DGlobal;
   pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6DGlobal;
+  pcl::PointCloud<PointType>::Ptr cloudKeyPoses3DTruth;
+  pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6DTruth;
 
   pcl::PointCloud<PointType>::Ptr surroundingKeyPoses;
   pcl::PointCloud<PointType>::Ptr surroundingKeyPosesDS;
@@ -263,6 +269,8 @@ class MapOptimization {
   pcl::PointCloud<PointType>::Ptr getCornerCloudKeyFrame(int index);
   pcl::PointCloud<PointType>::Ptr getSurfCloudKeyFrame(int index);
   pcl::PointCloud<PointType>::Ptr getOutlierCloudKeyFrame(int index);
+
+  void saveGroundTruth();
 };
 
 #endif // MAPOPTIMIZATION_H
