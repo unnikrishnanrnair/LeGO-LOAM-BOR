@@ -2,6 +2,7 @@
 #define POSEINITIALIZATION_H
 
 #include "lego_loam/utility.h"
+#include <ros/package.h>
 
 class PoseInitialization {
 
@@ -10,6 +11,7 @@ public:
 
 	~PoseInitialization();
 
+	void runPoseInitialization();
 private:
 	ros::NodeHandle& nh;
 
@@ -20,9 +22,9 @@ private:
 	double init_pose_x;
 	double init_pose_y;
 	double init_pose_z;
-	double init_pose_r;
-	double init_pose_p;
-	double init_pose_y;
+	double init_pose_raw;
+	double init_pose_pitch;
+	double init_pose_yaw;
 
 	std::string init_pose_file;
 
@@ -31,7 +33,6 @@ private:
 private:
 	void readPoseFromFile();
 	void publishIntialPose();
-	void runPoseInitialization();
 
 };
 
