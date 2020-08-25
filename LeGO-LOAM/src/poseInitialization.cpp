@@ -7,7 +7,7 @@ PoseInitialization::PoseInitialization(ros::NodeHandle &node) : nh(node) {
 	init_pose_x = 0;
 	init_pose_y = 0;
 	init_pose_z = 0;
-	init_pose_raw = 0;
+	init_pose_roll = 0;
 	init_pose_pitch = 0;
 	init_pose_yaw = 0;
 
@@ -25,14 +25,14 @@ void PoseInitialization::readPoseFromFile(){
 	try{
 		std::ifstream file(init_pose_file);
 
-		if(!(file >> init_pose_x >> init_pose_y >> init_pose_z >> init_pose_raw >> init_pose_pitch >> init_pose_yaw)){
+		if(!(file >> init_pose_x >> init_pose_y >> init_pose_z >> init_pose_roll >> init_pose_pitch >> init_pose_yaw)){
 			std::cout << "Can't read init_pose_file" << std::endl;
 		}
 
 		std::cout << init_pose_x << std::endl;
 		std::cout << init_pose_y << std::endl;
 		std::cout << init_pose_z << std::endl;
-		std::cout << init_pose_raw << std::endl;
+		std::cout << init_pose_roll << std::endl;
 		std::cout << init_pose_pitch << std::endl;
 		std::cout << init_pose_yaw << std::endl;
 	}
@@ -40,7 +40,7 @@ void PoseInitialization::readPoseFromFile(){
 		std::cerr << e.what() << std::endl;
 	}
 
-	geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw(init_pose_raw, init_pose_pitch, init_pose_yaw);
+	geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw(init_pose_roll, init_pose_pitch, init_pose_yaw);
 
 	intiPose.pose.pose.orientation.x = geoQuat.x;
   	intiPose.pose.pose.orientation.y = geoQuat.y;
@@ -51,7 +51,7 @@ void PoseInitialization::readPoseFromFile(){
   	intiPose.pose.pose.position.z = init_pose_z;
 }
 
-void PoseInitialization::publishIntialPose(){
+void PoseInitialization::publishInitialPose(){
 
 	if(pubInitialPose.getNumSubscribers() != 0){
   		pubInitialPose.publish(intiPose);
@@ -67,7 +67,7 @@ void PoseInitialization::runPoseInitialization(){
 		if(!ros::ok())
 			break;
 
-		publishIntialPose();
+		publishInitialPose();
 	}	
 }
 

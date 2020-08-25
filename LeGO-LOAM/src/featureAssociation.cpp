@@ -77,11 +77,11 @@ FeatureAssociation::FeatureAssociation(ros::NodeHandle &node,
   nh.getParam("/lego_loam/featureAssociation/nearest_feature_search_distance", nearest_dist);
   _nearest_feature_dist_sqr = nearest_dist*nearest_dist;
 
-  intialPoseDone = false;
+  initialPoseDone = false;
 
   initializationValue();
 
-  subInitialPose = nh.subscribe("/tf/odometry", 10, &FeatureAssociation::subInitalPoseCallback, this);
+  subInitialPose = nh.subscribe("/tf/odometry", 10, &FeatureAssociation::subInitialPoseCallback, this);
 
  _run_thread = std::thread (&FeatureAssociation::runFeatureAssociation, this);
 }
@@ -1337,8 +1337,8 @@ void FeatureAssociation::runFeatureAssociation() {
   }
 }
 
-void FeatureAssociation::subInitalPoseCallback(const nav_msgs::Odometry::ConstPtr& msg){
-  if(!intialPoseDone){
+void FeatureAssociation::subInitialPoseCallback(const nav_msgs::Odometry::ConstPtr& msg){
+  if(!initialPoseDone){
     
     double init_pose_r, init_pose_p, init_pose_y;
 
@@ -1349,10 +1349,10 @@ void FeatureAssociation::subInitalPoseCallback(const nav_msgs::Odometry::ConstPt
     transformSum[1] = init_pose_y;
     transformSum[2] = init_pose_r;
     transformSum[3] = msg->pose.pose.position.y;
-    transformSum[4] = msg->pose.pose.position.y;
-    transformSum[5] = msg->pose.pose.position.y;
+    transformSum[4] = msg->pose.pose.position.z;
+    transformSum[5] = msg->pose.pose.position.x;
 
-    intialPoseDone=true;
+    initialPoseDone=true;
 
   }
 }

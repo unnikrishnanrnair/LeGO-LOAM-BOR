@@ -111,7 +111,7 @@ class FeatureAssociation {
   size_t _cycle_count;
 
   ros::Subscriber subInitialPose;
-  bool intialPoseDone;
+  bool initialPoseDone;
 
  private:
   void initializationValue();
@@ -143,7 +143,7 @@ class FeatureAssociation {
   void adjustOutlierCloud();
   void publishCloudsLast();
 
-  void subInitalPoseCallback(const nav_msgs::Odometry::ConstPtr& msg);
+  void subInitialPoseCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
 };
 

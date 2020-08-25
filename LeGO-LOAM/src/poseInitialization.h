@@ -22,7 +22,7 @@ private:
 	double init_pose_x;
 	double init_pose_y;
 	double init_pose_z;
-	double init_pose_raw;
+	double init_pose_roll;
 	double init_pose_pitch;
 	double init_pose_yaw;
 
@@ -32,7 +32,7 @@ private:
 
 private:
 	void readPoseFromFile();
-	void publishIntialPose();
+	void publishInitialPose();
 
 };
 
