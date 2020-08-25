@@ -110,6 +110,9 @@ class FeatureAssociation {
   int frameCount;
   size_t _cycle_count;
 
+  ros::Subscriber subInitialPose;
+  bool intialPoseDone;
+
  private:
   void initializationValue();
   void adjustDistortion();
