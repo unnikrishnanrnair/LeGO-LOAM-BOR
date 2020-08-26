@@ -125,7 +125,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
   cloudKeyPose3DSize=0;
 
-  boost::filesystem::create_directories("/tmp/dump");
+  boost::filesystem::create_directories("/tmp/dump1");
 }
 
 MapOptimization::~MapOptimization()
@@ -134,8 +134,6 @@ MapOptimization::~MapOptimization()
   _input_channel.send({});
   _run_thread.join();
 
-  pcl::io::savePCDFileBinary("tmp/dump/cloudKeyPoses3DTruth.pcd", *cloudKeyPoses3DTruth);
-  pcl::io::savePCDFileBinary("tmp/dump/cloudKeyPoses6DTruth.pcd", *cloudKeyPoses6DTruth);
 
   _publish_global_signal.send(false);
   _publish_global_thread.join();
@@ -1345,12 +1343,12 @@ void MapOptimization::saveKeyFramesAndFactor() {
     }
   }
 
-  pcl::PointCloud<PointType>::Ptr thisCornerKeyFrame(
-      new pcl::PointCloud<PointType>());
-  pcl::PointCloud<PointType>::Ptr thisSurfKeyFrame(
-      new pcl::PointCloud<PointType>());
-  pcl::PointCloud<PointType>::Ptr thisOutlierKeyFrame(
-      new pcl::PointCloud<PointType>());
+  // pcl::PointCloud<PointType>::Ptr thisCornerKeyFrame(
+  //     new pcl::PointCloud<PointType>());
+  // pcl::PointCloud<PointType>::Ptr thisSurfKeyFrame(
+  //     new pcl::PointCloud<PointType>());
+  // pcl::PointCloud<PointType>::Ptr thisOutlierKeyFrame(
+  //     new pcl::PointCloud<PointType>());
 
   // pcl::copyPointCloud(*laserCloudCornerLastDS, *thisCornerKeyFrame);
   // pcl::copyPointCloud(*laserCloudSurfLastDS, *thisSurfKeyFrame);
@@ -1420,22 +1418,26 @@ void MapOptimization::run() {
 
       OdometryToTransform(association.laser_odometry, transformSum);
 
-      transformAssociateToMap();
+      // transformAssociateToMap();
 
-      extractSurroundingKeyFrames();
+      // extractSurroundingKeyFrames();
 
       downsampleCurrentScan();
 
-      scan2MapOptimization();
+      // scan2MapOptimization();
 
-      saveKeyFramesAndFactor();
+      // saveKeyFramesAndFactor();
 
       // correctPoses();
 
-      publishTF();
+      // publishTF();
 
-      publishKeyPosesAndFrames();
+      // cloudKeyPose3DSize+=1;
 
+
+      // publishKeyPosesAndFrames();
+
+      
       saveGroundTruth();
 
       clearCloud();
@@ -1450,6 +1452,32 @@ void MapOptimization::run() {
     //   _publish_global_signal.send(true);
     // }
   }
+  pcl::io::savePCDFileBinary("/tmp/dump1/cloudKeyPoses3DTruth.pcd", *cloudKeyPoses3DTruth);
+  pcl::io::savePCDFileBinary("/tmp/dump1/cloudKeyPoses6DTruth.pcd", *cloudKeyPoses6DTruth);
+}
+
+bool MapOptimization::doWeSave(tf::StampedTransform true_transform){
+
+  currentRobotPosPoint.x = true_transform.getOrigin().x();
+  currentRobotPosPoint.y = true_transform.getOrigin().y();
+  currentRobotPosPoint.z = true_transform.getOrigin().z();
+
+  bool saveThisKeyFrame = true;
+  if (sqrt((previousRobotPosPoint.x - currentRobotPosPoint.x) *
+               (previousRobotPosPoint.x - currentRobotPosPoint.x) +
+           (previousRobotPosPoint.y - currentRobotPosPoint.y) *
+               (previousRobotPosPoint.y - currentRobotPosPoint.y) +
+           (previousRobotPosPoint.z - currentRobotPosPoint.z) *
+               (previousRobotPosPoint.z - currentRobotPosPoint.z)) < 0.3) {
+    saveThisKeyFrame = false;
+  }
+
+  previousRobotPosPoint = currentRobotPosPoint;
+
+  if (saveThisKeyFrame == false && !(cloudKeyPose3DSize==0)) return false;
+
+  return true;
+  
 }
 
 void MapOptimization::saveGroundTruth(){
@@ -1475,64 +1503,68 @@ void MapOptimization::saveGroundTruth(){
     listener.lookupTransform(carFrame,worldFrame,
                               ros::Time(0), true_transform);
 
-    std::string keyframe_directory = (boost::format("/tmp/dump/%06d") % cloudKeyPose3DSize).str();
-    boost::filesystem::create_directories(keyframe_directory);
+    if(doWeSave(true_transform)){
+      cloudKeyPose3DSize+=1;
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_corner(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_surf(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_outlier(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+      std::string keyframe_directory = (boost::format("/tmp/dump1/%06d") % cloudKeyPose3DSize).str();
+      boost::filesystem::create_directories(keyframe_directory);
 
-    *cloud_corner+=*laserCloudCornerLastDS;
-    *cloud_surf+=*laserCloudSurfLastDS;
-    *cloud_outlier+=*laserCloudOutlierLastDS;
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_corner(new pcl::PointCloud<pcl::PointXYZI>);
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_surf(new pcl::PointCloud<pcl::PointXYZI>);
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_outlier(new pcl::PointCloud<pcl::PointXYZI>);
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
 
-    *cloud+=*laserCloudCornerLastDS;
-    *cloud+=*laserCloudSurfLastDS;
-    *cloud+=*laserCloudOutlierLastDS;
+      *cloud_corner+=*laserCloudCornerLastDS;
+      *cloud_surf+=*laserCloudSurfLastDS;
+      *cloud_outlier+=*laserCloudOutlierLastDS;
 
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *cloud);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *cloud_corner);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *cloud_surf);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *cloud_outlier);
+      *cloud+=*laserCloudCornerLastDS;
+      *cloud+=*laserCloudSurfLastDS;
+      *cloud+=*laserCloudOutlierLastDS;
 
-    thisPose3D.x=true_transform.getOrigin().x();
-    thisPose3D.y=true_transform.getOrigin().y();
-    thisPose3D.z=true_transform.getOrigin().z();
-    thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
+      pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *cloud);
+      pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *cloud_corner);
+      pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *cloud_surf);
+      pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *cloud_outlier);
 
-    cloudKeyPoses3DTruth->push_back(thisPose3D);
-    thisPose6D.x=thisPose3D.x;
-    thisPose6D.y=thisPose3D.y;
-    thisPose6D.z=thisPose3D.z;
-    thisPose3D.intensity=thisPose3D.intensity;
-    double w,x,y,z;
-    x=true_transform.getRotation().getX();
-    y=true_transform.getRotation().getY();
-    z=true_transform.getRotation().getZ();
-    w=true_transform.getRotation().getW();
+      thisPose3D.x=true_transform.getOrigin().x();
+      thisPose3D.y=true_transform.getOrigin().y();
+      thisPose3D.z=true_transform.getOrigin().z();
+      thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
-    double true_pitch,true_roll,true_yaw;
-    tf::Matrix3x3(tf::Quaternion(x,y,z,w)).getRPY(true_roll,true_pitch,true_yaw);
-    thisPose6D.pitch=true_pitch;
-    thisPose6D.yaw=true_yaw;
-    thisPose6D.roll=true_roll;
-    thisPose6D.time = timeLaserOdometry;
-    cloudKeyPoses6DTruth->push_back(thisPose6D);
+      cloudKeyPoses3DTruth->push_back(thisPose3D);
+      thisPose6D.x=thisPose3D.x;
+      thisPose6D.y=thisPose3D.y;
+      thisPose6D.z=thisPose3D.z;
+      thisPose3D.intensity=thisPose3D.intensity;
+      double w,x,y,z;
+      x=true_transform.getRotation().getX();
+      y=true_transform.getRotation().getY();
+      z=true_transform.getRotation().getZ();
+      w=true_transform.getRotation().getW();
 
-    ros::Time stamp(timeLaserOdometry);
+      double true_pitch,true_roll,true_yaw;
+      tf::Matrix3x3(tf::Quaternion(x,y,z,w)).getRPY(true_roll,true_pitch,true_yaw);
+      thisPose6D.pitch=true_pitch;
+      thisPose6D.yaw=true_yaw;
+      thisPose6D.roll=true_roll;
+      thisPose6D.time = timeLaserOdometry;
+      cloudKeyPoses6DTruth->push_back(thisPose6D);
 
-    gtsam::Rot3 rot(w,x,y,z);
-    gtsam::Point3 t(thisPose3D.x,thisPose3D.y,thisPose3D.z);
-    gtsam::Pose3 true_pose(rot,t);
+      gtsam::Rot3 rot(w,x,y,z);
+      gtsam::Point3 t(thisPose3D.x,thisPose3D.y,thisPose3D.z);
+      gtsam::Pose3 true_pose(rot,t);
 
-    std::ofstream data_ofs(keyframe_directory + "/data");
-    data_ofs << "stamp " << stamp.sec << " " << stamp.nsec << "\n";
-    data_ofs << "estimate\n" << true_pose.matrix() << "\n";
-    data_ofs << "odom\n" << true_pose.matrix() << "\n";
-    data_ofs << "accum_distance -1" << "\n";
-    data_ofs << "id " << cloudKeyPose3DSize << "\n";
+      ros::Time stamp(timeLaserOdometry);
+
+      std::ofstream data_ofs(keyframe_directory + "/data");
+      data_ofs << "stamp " << stamp.sec << " " << stamp.nsec << "\n";
+      data_ofs << "estimate\n" << true_pose.matrix() << "\n";
+      data_ofs << "odom\n" << true_pose.matrix() << "\n";
+      data_ofs << "accum_distance -1" << "\n";
+      data_ofs << "id " << cloudKeyPose3DSize << "\n";
     }
+  }
   catch (tf::TransformException ex){
     ROS_ERROR("%s",ex.what());
   }

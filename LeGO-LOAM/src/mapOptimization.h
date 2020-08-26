@@ -271,6 +271,7 @@ class MapOptimization {
   pcl::PointCloud<PointType>::Ptr getOutlierCloudKeyFrame(int index);
 
   void saveGroundTruth();
+  bool doWeSave(tf::StampedTransform true_transform);
 };
 
 #endif // MAPOPTIMIZATION_H
