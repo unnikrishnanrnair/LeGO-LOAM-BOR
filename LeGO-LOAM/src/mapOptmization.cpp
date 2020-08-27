@@ -120,10 +120,10 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
   _run_thread = std::thread(&MapOptimization::run, this);
 
   // Read saved cloudKeyPose3D and cloudKeyPose6D
-  std::string cloudKeyPoses3DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses3D.pcd")).str();
-  pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses3DGlobal);
-  std::string cloudKeyPoses6DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses6D.pcd")).str();
-  pcl::io::loadPCDFile<PointTypePose> (cloudKeyPoses6DGlobalDir, *cloudKeyPoses6DGlobal);
+  //std::string cloudKeyPoses3DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses3D.pcd")).str();
+  //pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses3DGlobal);
+  //std::string cloudKeyPoses6DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses6D.pcd")).str();
+  //pcl::io::loadPCDFile<PointTypePose> (cloudKeyPoses6DGlobalDir, *cloudKeyPoses6DGlobal);
 
   cloudKeyPose3DSize=0;
 
@@ -1534,9 +1534,9 @@ void MapOptimization::saveGroundTruth(){
       // thisPose3D.z=true_transform.getOrigin().z();
       // thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
-      thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.x;
-      thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.y;
-      thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.z;
+      thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.y;
+      thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.z;
+      thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.x;
       thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
       cloudKeyPoses3DTruth->push_back(thisPose3D);
@@ -1557,9 +1557,9 @@ void MapOptimization::saveGroundTruth(){
 
       double true_pitch,true_roll,true_yaw;
       tf::Matrix3x3(tf::Quaternion(x,y,z,w)).getRPY(true_roll,true_pitch,true_yaw);
-      thisPose6D.pitch=true_pitch;
-      thisPose6D.yaw=true_yaw;
-      thisPose6D.roll=true_roll;
+      thisPose6D.pitch=true_roll;
+      thisPose6D.yaw=true_pitch;
+      thisPose6D.roll=true_yaw;
       thisPose6D.time = timeLaserOdometry;
       cloudKeyPoses6DTruth->push_back(thisPose6D);
 
