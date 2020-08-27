@@ -113,6 +113,8 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
   allocateMemory();
 
+  subVehicleOdom = nh.subscribe<nav_msgs::Odometry>("/vehicle_odom", 10, &MapOptimization::subVehicleOdomHandler, this);
+
   _publish_global_thread = std::thread(&MapOptimization::publishGlobalMapThread, this);
   _loop_closure_thread = std::thread(&MapOptimization::loopClosureThread, this);
   _run_thread = std::thread(&MapOptimization::run, this);
@@ -1456,11 +1458,11 @@ void MapOptimization::run() {
   pcl::io::savePCDFileBinary("/tmp/dump1/cloudKeyPoses6DTruth.pcd", *cloudKeyPoses6DTruth);
 }
 
-bool MapOptimization::doWeSave(tf::StampedTransform true_transform){
+bool MapOptimization::doWeSave(nav_msgs::Odometry true_transform){
 
-  currentRobotPosPoint.x = true_transform.getOrigin().x();
-  currentRobotPosPoint.y = true_transform.getOrigin().y();
-  currentRobotPosPoint.z = true_transform.getOrigin().z();
+  currentRobotPosPoint.x = true_transform.pose.pose.position.x;
+  currentRobotPosPoint.y = true_transform.pose.pose.position.y;
+  currentRobotPosPoint.z = true_transform.pose.pose.position.z;
 
   bool saveThisKeyFrame = true;
   if (sqrt((previousRobotPosPoint.x - currentRobotPosPoint.x) *
@@ -1492,18 +1494,18 @@ void MapOptimization::saveGroundTruth(){
 
   tf::TransformListener listener;
 
-  tf::StampedTransform true_transform;
+  //tf::StampedTransform true_transform;
 
   PointType thisPose3D;
   PointTypePose thisPose6D;
 
   try{
-    listener.waitForTransform(carFrame,worldFrame,
-                              ros::Time(0), ros::Duration(3.0));
-    listener.lookupTransform(carFrame,worldFrame,
-                              ros::Time(0), true_transform);
+    //listener.waitForTransform(carFrame,worldFrame,
+    //                          ros::Time(0), ros::Duration(3.0));
+    //listener.lookupTransform(carFrame,worldFrame,
+    //                          ros::Time(0), true_transform);
 
-    if(doWeSave(true_transform)){
+    if(doWeSave(tempVehicleOdomMsg)){
       cloudKeyPose3DSize+=1;
 
       std::string keyframe_directory = (boost::format("/tmp/dump1/%06d") % cloudKeyPose3DSize).str();
@@ -1527,9 +1529,14 @@ void MapOptimization::saveGroundTruth(){
       pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *cloud_surf);
       pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *cloud_outlier);
 
-      thisPose3D.x=true_transform.getOrigin().x();
-      thisPose3D.y=true_transform.getOrigin().y();
-      thisPose3D.z=true_transform.getOrigin().z();
+      // thisPose3D.x=true_transform.getOrigin().x();
+      // thisPose3D.y=true_transform.getOrigin().y();
+      // thisPose3D.z=true_transform.getOrigin().z();
+      // thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
+
+      thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.x;
+      thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.y;
+      thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.z;
       thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
       cloudKeyPoses3DTruth->push_back(thisPose3D);
@@ -1538,10 +1545,15 @@ void MapOptimization::saveGroundTruth(){
       thisPose6D.z=thisPose3D.z;
       thisPose3D.intensity=thisPose3D.intensity;
       double w,x,y,z;
-      x=true_transform.getRotation().getX();
-      y=true_transform.getRotation().getY();
-      z=true_transform.getRotation().getZ();
-      w=true_transform.getRotation().getW();
+      // x=true_transform.getRotation().getX();
+      // y=true_transform.getRotation().getY();
+      // z=true_transform.getRotation().getZ();
+      // w=true_transform.getRotation().getW();
+
+      x=tempVehicleOdomMsg.pose.pose.orientation.x;
+      y=tempVehicleOdomMsg.pose.pose.orientation.y;
+      z=tempVehicleOdomMsg.pose.pose.orientation.z;
+      w=tempVehicleOdomMsg.pose.pose.orientation.w;
 
       double true_pitch,true_roll,true_yaw;
       tf::Matrix3x3(tf::Quaternion(x,y,z,w)).getRPY(true_roll,true_pitch,true_yaw);
@@ -1593,4 +1605,8 @@ pcl::PointCloud<PointType>::Ptr MapOptimization::getOutlierCloudKeyFrame(int ind
   pcl::io::loadPCDFile<PointType> (cloudDir, *tempCloud);
 
   return tempCloud;
+}
+
+void MapOptimization::subVehicleOdomHandler(const nav_msgs::Odometry::ConstPtr& msg){
+  tempVehicleOdomMsg = (*msg);
 }

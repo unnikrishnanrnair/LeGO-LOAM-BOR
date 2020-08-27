@@ -232,6 +232,9 @@ class MapOptimization {
   float cRoll, sRoll, cPitch, sPitch, cYaw, sYaw, tX, tY, tZ;
   float ctRoll, stRoll, ctPitch, stPitch, ctYaw, stYaw, tInX, tInY, tInZ;
 
+  ros::Subscriber subVehicleOdom;
+  nav_msgs::Odometry tempVehicleOdomMsg;
+
  private:
   void allocateMemory();
   void transformAssociateToMap();
@@ -271,7 +274,9 @@ class MapOptimization {
   pcl::PointCloud<PointType>::Ptr getOutlierCloudKeyFrame(int index);
 
   void saveGroundTruth();
-  bool doWeSave(tf::StampedTransform true_transform);
+  bool doWeSave(nav_msgs::Odometry true_transform);
+
+  void subVehicleOdomHandler(const nav_msgs::Odometry::ConstPtr& msg);
 };
 
 #endif // MAPOPTIMIZATION_H

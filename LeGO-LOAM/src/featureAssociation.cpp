@@ -1222,16 +1222,16 @@ void FeatureAssociation::publishCloud() {
 void FeatureAssociation::publishCloudsLast() {
 
   int cornerPointsLessSharpNum = cornerPointsLessSharp->points.size();
-  for (int i = 0; i < cornerPointsLessSharpNum; i++) {
-    TransformToEnd(&cornerPointsLessSharp->points[i],
-                   &cornerPointsLessSharp->points[i]);
-  }
+  //for (int i = 0; i < cornerPointsLessSharpNum; i++) {
+  //  TransformToEnd(&cornerPointsLessSharp->points[i],
+  //                 &cornerPointsLessSharp->points[i]);
+  //}
 
   int surfPointsLessFlatNum = surfPointsLessFlat->points.size();
-  for (int i = 0; i < surfPointsLessFlatNum; i++) {
-    TransformToEnd(&surfPointsLessFlat->points[i],
-                   &surfPointsLessFlat->points[i]);
-  }
+  //for (int i = 0; i < surfPointsLessFlatNum; i++) {
+  //  TransformToEnd(&surfPointsLessFlat->points[i],
+  //                 &surfPointsLessFlat->points[i]);
+  //}
 
   pcl::PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
   cornerPointsLessSharp = laserCloudCornerLast;
@@ -1304,11 +1304,11 @@ void FeatureAssociation::runFeatureAssociation() {
       continue;
     }
 
-    updateTransformation();
+    //updateTransformation();
 
-    integrateTransformation();
+    //integrateTransformation();
 
-    publishOdometry();
+    //publishOdometry();
 
     publishCloudsLast();  // cloud to mapOptimization
 
