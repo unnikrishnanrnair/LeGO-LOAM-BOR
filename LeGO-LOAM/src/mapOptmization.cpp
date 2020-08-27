@@ -1506,8 +1506,6 @@ void MapOptimization::saveGroundTruth(){
     //                          ros::Time(0), true_transform);
 
     if(doWeSave(tempVehicleOdomMsg)){
-      cloudKeyPose3DSize+=1;
-
       std::string keyframe_directory = (boost::format("/tmp/dump1/%06d") % cloudKeyPose3DSize).str();
       boost::filesystem::create_directories(keyframe_directory);
 
@@ -1540,6 +1538,7 @@ void MapOptimization::saveGroundTruth(){
       thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
       cloudKeyPoses3DTruth->push_back(thisPose3D);
+      cloudKeyPose3DSize+=1;
       thisPose6D.x=thisPose3D.x;
       thisPose6D.y=thisPose3D.y;
       thisPose6D.z=thisPose3D.z;
