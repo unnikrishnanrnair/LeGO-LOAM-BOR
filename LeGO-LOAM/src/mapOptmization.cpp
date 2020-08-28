@@ -1506,10 +1506,8 @@ void MapOptimization::saveGroundTruth(){
     //                          ros::Time(0), true_transform);
 
     if(doWeSave(tempVehicleOdomMsg)){
-      std::string keyframe_directory = (boost::format("/tmp/dump1/%06d") % cloudKeyPose3DSize).str();
+      std::string keyframe_directory = (boost::format("/tmp/dump/%06d") % cloudKeyPose3DSize).str();
       boost::filesystem::create_directories(keyframe_directory);
-      
-      cloudKeyPose3DSize+=1;
 
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_corner(new pcl::PointCloud<pcl::PointXYZI>);
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_surf(new pcl::PointCloud<pcl::PointXYZI>);
@@ -1537,7 +1535,7 @@ void MapOptimization::saveGroundTruth(){
       thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.y;
       thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.z;
       thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.x;
-      thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
+      thisPose3D.intensity=cloudKeyPose3DSize;
 
       cloudKeyPoses3DTruth->push_back(thisPose3D);
       cloudKeyPose3DSize+=1;
