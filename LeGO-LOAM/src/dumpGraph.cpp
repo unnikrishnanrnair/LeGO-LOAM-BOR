@@ -16,7 +16,8 @@ void dump(const std::string& dump_directory,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes,
   const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D,
-  const pcl::PointCloud<PointTypePose>::Ptr& cloudKeyPoses6D
+  const pcl::PointCloud<PointTypePose>::Ptr& cloudKeyPoses6D,
+  const std::vector<sensor_msgs::NavSatFix>& gps_data
 ) {
   boost::filesystem::create_directories(dump_directory);
 
@@ -99,4 +100,12 @@ void dump(const std::string& dump_directory,
 
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses3D.pcd", *cloudKeyPoses3D);
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses6D.pcd", *cloudKeyPoses6D);
+
+  std::ofstream gps_data_ofs(dump_directory + "/gps_data.txt");
+
+  for(int i=0; i<gps_data.size(); i++){
+    gps_data_ofs << gps_data[i].latitude << " " << gps_data[i].longitude << " " << gps_data[i].altitude << " ";
+    gps_data_ofs << gps_data[i].position_covariance[0] << " " << gps_data[i].position_covariance[1] << " " << gps_data[i].position_covariance[2] << " " << gps_data[i].position_covariance[3] << " " << gps_data[i].position_covariance[4] << " " << gps_data[i].position_covariance[5] << " " << gps_data[i].position_covariance[6] << " " << gps_data[i].position_covariance[7] << " " << gps_data[i].position_covariance[8] << " "; 
+    gps_data_ofs << "\n";
+  }
 }

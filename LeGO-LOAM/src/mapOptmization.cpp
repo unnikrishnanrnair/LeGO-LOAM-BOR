@@ -113,6 +113,8 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
   allocateMemory();
 
+  subGpsData = nh.subscribe<sensor_msgs::NavSatFix>("/vehicle_gps", 10, &MapOptimization::subGpsDataHandler, this);
+
   _publish_global_thread = std::thread(&MapOptimization::publishGlobalMapThread, this);
   _loop_closure_thread = std::thread(&MapOptimization::loopClosureThread, this);
   _run_thread = std::thread(&MapOptimization::run, this);
@@ -121,7 +123,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
 MapOptimization::~MapOptimization()
 {
-  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames, cloudKeyPoses3D, cloudKeyPoses6D);
+  dump("/tmp/dump", *isam, isamCurrentEstimate, keyframeStamps, cornerCloudKeyFrames, surfCloudKeyFrames, outlierCloudKeyFrames, cloudKeyPoses3D, cloudKeyPoses6D, gps_data);
   _input_channel.send({});
   _run_thread.join();
 
@@ -1431,4 +1433,8 @@ void MapOptimization::run() {
       _publish_global_signal.send(true);
     }
   }
+}
+
+void MapOptimization::subGpsDataHandler(const sensor_msgs::NavSatFix::ConstPtr& msg){
+  gps_data.push_back((*msg));
 }
