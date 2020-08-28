@@ -125,8 +125,17 @@ void FeatureAssociation::initializationValue() {
 
   for (int i = 0; i < 6; ++i) {
     transformCur[i] = 0;
-    transformSum[i] = 0;
+    // transformSum[i] = 0;
   }
+  double init_pitch,init_roll,init_yaw;
+
+  tf::Matrix3x3(tf::Quaternion(0.000959772505553, -0.00159736922327,-0.851788135108, 0.523883097778)).getRPY(init_roll,init_pitch,init_yaw);
+  transformSum[0]=init_pitch;
+  transformSum[1]=init_yaw;
+  transformSum[2]=init_roll;
+  transformSum[3]=23.7410888672;
+  transformSum[4]=0.0419677533209;
+  transformSum[5]=-9.87019538879;
 
   systemInitedLM = false;
 
