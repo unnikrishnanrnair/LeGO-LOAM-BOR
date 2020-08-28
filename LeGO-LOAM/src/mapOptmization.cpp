@@ -120,14 +120,14 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
   _run_thread = std::thread(&MapOptimization::run, this);
 
   // Read saved cloudKeyPose3D and cloudKeyPose6D
-  std::string cloudKeyPoses3DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses3D.pcd")).str();
-  pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses3DGlobal);
-  std::string cloudKeyPoses6DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses6D.pcd")).str();
-  pcl::io::loadPCDFile<PointTypePose> (cloudKeyPoses6DGlobalDir, *cloudKeyPoses6DGlobal);
+  //std::string cloudKeyPoses3DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses3D.pcd")).str();
+  //pcl::io::loadPCDFile<PointType> (cloudKeyPoses3DGlobalDir, *cloudKeyPoses3DGlobal);
+  //std::string cloudKeyPoses6DGlobalDir = (boost::format("/tmp/dump/cloudKeyPoses6D.pcd")).str();
+  //pcl::io::loadPCDFile<PointTypePose> (cloudKeyPoses6DGlobalDir, *cloudKeyPoses6DGlobal);
 
   cloudKeyPose3DSize=0;
 
-  boost::filesystem::create_directories("/tmp/dump1");
+  boost::filesystem::create_directories("/tmp/dump");
 }
 
 MapOptimization::~MapOptimization()
@@ -1454,8 +1454,8 @@ void MapOptimization::run() {
     //   _publish_global_signal.send(true);
     // }
   }
-  pcl::io::savePCDFileBinary("/tmp/dump1/cloudKeyPoses3DTruth.pcd", *cloudKeyPoses3DTruth);
-  pcl::io::savePCDFileBinary("/tmp/dump1/cloudKeyPoses6DTruth.pcd", *cloudKeyPoses6DTruth);
+  pcl::io::savePCDFileBinary("/tmp/dump/cloudKeyPoses3D.pcd", *cloudKeyPoses3DTruth);
+  pcl::io::savePCDFileBinary("/tmp/dump/cloudKeyPoses6D.pcd", *cloudKeyPoses6DTruth);
 }
 
 bool MapOptimization::doWeSave(nav_msgs::Odometry true_transform){
@@ -1508,6 +1508,8 @@ void MapOptimization::saveGroundTruth(){
     if(doWeSave(tempVehicleOdomMsg)){
       std::string keyframe_directory = (boost::format("/tmp/dump1/%06d") % cloudKeyPose3DSize).str();
       boost::filesystem::create_directories(keyframe_directory);
+      
+      cloudKeyPose3DSize+=1;
 
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_corner(new pcl::PointCloud<pcl::PointXYZI>);
       pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_surf(new pcl::PointCloud<pcl::PointXYZI>);
@@ -1532,9 +1534,9 @@ void MapOptimization::saveGroundTruth(){
       // thisPose3D.z=true_transform.getOrigin().z();
       // thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
-      thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.x;
-      thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.y;
-      thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.z;
+      thisPose3D.x=tempVehicleOdomMsg.pose.pose.position.y;
+      thisPose3D.y=tempVehicleOdomMsg.pose.pose.position.z;
+      thisPose3D.z=tempVehicleOdomMsg.pose.pose.position.x;
       thisPose3D.intensity=cloudKeyPoses3DTruth->points.size();
 
       cloudKeyPoses3DTruth->push_back(thisPose3D);
@@ -1556,9 +1558,9 @@ void MapOptimization::saveGroundTruth(){
 
       double true_pitch,true_roll,true_yaw;
       tf::Matrix3x3(tf::Quaternion(x,y,z,w)).getRPY(true_roll,true_pitch,true_yaw);
-      thisPose6D.pitch=true_pitch;
-      thisPose6D.yaw=true_yaw;
-      thisPose6D.roll=true_roll;
+      thisPose6D.pitch=true_yaw;
+      thisPose6D.yaw=true_roll;
+      thisPose6D.roll=true_pitch;
       thisPose6D.time = timeLaserOdometry;
       cloudKeyPoses6DTruth->push_back(thisPose6D);
 
