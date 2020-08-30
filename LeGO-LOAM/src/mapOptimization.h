@@ -14,6 +14,7 @@
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/PriorFactor.h>
 #include <gtsam/nonlinear/ISAM2.h>
+#include <sensor_msgs/NavSatFix.h>
 
 inline gtsam::Pose3 pclPointTogtsamPose3(PointTypePose thisPoint) {
   // camera frame to lidar frame
@@ -221,6 +222,9 @@ class MapOptimization {
   float cRoll, sRoll, cPitch, sPitch, cYaw, sYaw, tX, tY, tZ;
   float ctRoll, stRoll, ctPitch, stPitch, ctYaw, stYaw, tInX, tInY, tInZ;
 
+  std::vector<sensor_msgs::NavSatFix> gps_data;
+  ros::Subscriber subGpsData;
+
  private:
   void allocateMemory();
   void transformAssociateToMap();
@@ -254,6 +258,8 @@ class MapOptimization {
   void correctPoses();
 
   void clearCloud();
+
+  void subGpsDataHandler(const sensor_msgs::NavSatFix::ConstPtr& msg);
 };
 
 #endif // MAPOPTIMIZATION_H
