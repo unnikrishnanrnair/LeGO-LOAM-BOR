@@ -76,7 +76,7 @@ void dump(const std::string& dump_directory,
     pcl::PointCloud<pcl::PointXYZI>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZI>());
     
     pcl::transformPointCloud(*cloud, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *cloud);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *transformed);
 
     // pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
     // cloud = transformPointCloud(cloud, keyframe_poses[i]);
