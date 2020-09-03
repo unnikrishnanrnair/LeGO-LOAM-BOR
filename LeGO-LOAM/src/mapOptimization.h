@@ -235,6 +235,8 @@ class MapOptimization {
   ros::Subscriber subVehicleOdom;
   nav_msgs::Odometry tempVehicleOdomMsg;
 
+  pcl::PointCloud<PointType>::Ptr fullCloudMap;
+
  private:
   void allocateMemory();
   void transformAssociateToMap();

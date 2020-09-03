@@ -239,6 +239,8 @@ void MapOptimization::allocateMemory() {
   aLoopIsClosed = false;
 
   latestFrameID = 0;
+
+  fullCloudMap.reset(new pcl::PointCloud<PointType>());
 }
 
 
@@ -1456,6 +1458,7 @@ void MapOptimization::run() {
   }
   pcl::io::savePCDFileBinary("/tmp/dump/cloudKeyPoses3D.pcd", *cloudKeyPoses3DTruth);
   pcl::io::savePCDFileBinary("/tmp/dump/cloudKeyPoses6D.pcd", *cloudKeyPoses6DTruth);
+  pcl::io::savePCDFileBinary("/tmp/dump/fullCloud.pcd", *fullCloudMap);
 }
 
 bool MapOptimization::doWeSave(nav_msgs::Odometry true_transform){
@@ -1561,6 +1564,8 @@ void MapOptimization::saveGroundTruth(){
       thisPose6D.roll=true_pitch;
       thisPose6D.time = timeLaserOdometry;
       cloudKeyPoses6DTruth->push_back(thisPose6D);
+
+      *fullCloudMap += *transformPointCloud(cloud, &thisPose6D);
 
       gtsam::Rot3 rot(w,x,y,z);
       gtsam::Point3 t(thisPose3D.x,thisPose3D.y,thisPose3D.z);
