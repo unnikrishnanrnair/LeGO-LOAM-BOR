@@ -1565,7 +1565,14 @@ void MapOptimization::saveGroundTruth(){
       thisPose6D.time = timeLaserOdometry;
       cloudKeyPoses6DTruth->push_back(thisPose6D);
 
-      *fullCloudMap += *transformPointCloud(cloud, &thisPose6D);
+
+      Eigen::Isometry3f camera2lidar = Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(M_PI / 2.0, Eigen::Vector3f::UnitY()) * Eigen::Isometry3f::Identity();
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_temp(new pcl::PointCloud<pcl::PointXYZI>());
+      pcl::PointCloud<pcl::PointXYZI>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZI>());
+      *cloud_temp = *transformPointCloud(cloud, &thisPose6D);
+      pcl::transformPointCloud(*cloud_temp, *transformed, camera2lidar);
+
+      *fullCloudMap += *transformed;
 
       gtsam::Rot3 rot(w,x,y,z);
       gtsam::Point3 t(thisPose3D.x,thisPose3D.y,thisPose3D.z);
