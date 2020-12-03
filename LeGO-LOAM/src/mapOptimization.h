@@ -71,9 +71,11 @@ class MapOptimization {
   std::thread _publish_global_thread;
   void publishGlobalMapThread();
 
-  Channel<bool> _loop_closure_signal;
-  std::thread _loop_closure_thread;
-  void loopClosureThread();
+  bool globalMapPublished;
+
+  //Channel<bool> _loop_closure_signal;
+  // std::thread _loop_closure_thread;
+  // void loopClosureThread();
 
   ros::Publisher pubLaserCloudSurround;
   ros::Publisher pubOdomAftMapped;
@@ -244,8 +246,8 @@ class MapOptimization {
   void publishKeyPosesAndFrames();
   void publishGlobalMap();
 
-  bool detectLoopClosure();
-  void performLoopClosure();
+  // bool detectLoopClosure();
+  // void performLoopClosure();
 
   void extractSurroundingKeyFrames();
   void downsampleCurrentScan();
