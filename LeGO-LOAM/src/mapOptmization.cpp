@@ -35,7 +35,6 @@
 //      (IROS). October 2018.
 
 #include "mapOptimization.h"
-#include "dumpGraph.h"
 #include <future>
 
 using namespace gtsam;
