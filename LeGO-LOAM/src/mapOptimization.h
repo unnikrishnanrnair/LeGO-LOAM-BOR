@@ -283,10 +283,12 @@ class MapOptimization {
       pcl::PointCloud<PointType>::Ptr cloudIn, PointTypePose *transformIn);
   /**
    * Publish TransformAftMapped to /aft_mapped
+   * and Odometry data of TransformAftMapped and 
+   * TransformBefMapped to /aft_mapped_to_init
    **/ 
   void publishTF();
   /**
-   * Publish laserCloudSurfFromMapDS
+   * Publish laserCloudSurfFromMapDS to /recent_cloud
    **/ 
   void publishKeyPosesAndFrames();
   /**
@@ -295,9 +297,6 @@ class MapOptimization {
    **/ 
   void publishGlobalMap();
 
-  // bool detectLoopClosure();
-  // void performLoopClosure();
-  
   /**
    * Extract nearest 50 frames as surroundings from 
    * the mapped environment
