@@ -4,7 +4,8 @@
 #include <gtsam/nonlinear/Values.h>
 
 void dump(
-    const std::string& dump_directory, const gtsam::ISAM2& isam,
+    const std::string& dump_directory,   // the directory where map is stored 
+    const gtsam::ISAM2& isam,
     const gtsam::Values& isam_current_estimate,
     const std::vector<double>& keyframe_stamps,
     const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,

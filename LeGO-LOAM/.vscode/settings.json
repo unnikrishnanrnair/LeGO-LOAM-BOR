@@ -1,0 +1,7 @@
+{
+    "ros.distro": "melodic",
+    "python.autoComplete.extraPaths": [
+        "/home/shrinivas/KGP/AGV/SLAM/catkin_ws_lego_slam/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
+}
