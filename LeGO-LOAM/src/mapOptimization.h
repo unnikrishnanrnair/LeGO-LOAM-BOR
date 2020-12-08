@@ -36,10 +36,15 @@ inline Eigen::Affine3f pclPointToAffine3fCameraToLidar(
 class MapOptimization {
 
  public:
+  /**
+  * Default Constructor
+  */
   MapOptimization(ros::NodeHandle& node, Channel<AssociationOut> &input_channel);
 
   ~MapOptimization();
-
+  /**
+  * Main Function
+  **/
   void run();
 
  private:
@@ -50,11 +55,13 @@ class MapOptimization {
   gtsam::Values isamCurrentEstimate;
 
   ros::NodeHandle& nh;
+  // get these values from ros params 
   bool _loop_closure_enabled;
   float _scan_period;
   float _noise_scale_trans;
   float _noise_scale_rot;
-
+  
+  // get these too values from ros params 
   float _surrounding_keyframe_search_radius;
   int   _surrounding_keyframe_search_num;
   float _history_keyframe_search_radius;
@@ -167,7 +174,7 @@ class MapOptimization {
   pcl::VoxelGrid<PointType> downSizeFilterSurf;
   pcl::VoxelGrid<PointType> downSizeFilterOutlier;
   pcl::VoxelGrid<PointType>
-      downSizeFilterHistoryKeyFrames;  // for histor key frames of loop closure
+      downSizeFilterHistoryKeyFrames;  // for history key frames of loop closure
   pcl::VoxelGrid<PointType>
       downSizeFilterSurroundingKeyPoses;  // for surrounding key poses of
       // scan-to-map optimization
@@ -180,12 +187,11 @@ class MapOptimization {
   double timeLastGloalMapPublish;
 
   float transformLast[6];
-  float transformSum[6];
+  float transformSum[6]; // the odometry values 
   float transformIncre[6];
-  float transformTobeMapped[6];
-  float transformBefMapped[6];
-  float transformAftMapped[6];
-
+  float transformTobeMapped[6];  // transform to be mapped
+  float transformBefMapped[6];   // the previous odometry values
+  float transformAftMapped[6];   // transform after optimisation
 
   std::mutex mtx;
 
@@ -219,45 +225,117 @@ class MapOptimization {
 
   bool aLoopIsClosed;
 
+  // wrt transformToBeMapped 
   float cRoll, sRoll, cPitch, sPitch, cYaw, sYaw, tX, tY, tZ;
+  // wrt given transform
   float ctRoll, stRoll, ctPitch, stPitch, ctYaw, stYaw, tInX, tInY, tInZ;
 
   std::vector<sensor_msgs::NavSatFix> gps_data;
   ros::Subscriber subGpsData;
 
  private:
+    /**
+   * Initialise all point clouds, transfrom arrays
+   * and other variables.
+   * */
   void allocateMemory();
+  /**
+   * Use TransformSum, TransformBefMapped and TransformAftMapped
+   * to calculate TransformToBeMapped wrt this Map
+   * */
   void transformAssociateToMap();
+  /**
+   * Update TransformAftMapped to value after LM optimisation
+   * Make TransformBefMapped equal to TransformSum
+   **/ 
   void transformUpdate();
+  /**
+   * Update cRoll, sRoll, cPitch, sPitch, cYaw, sYaw, tX, tY, tZ
+   * using TransformToBeMapped 
+   **/ 
   void updatePointAssociateToMapSinCos();
+  /**
+   * Find the co-ordinate of pi wrt map and save in po
+   **/ 
   void pointAssociateToMap(PointType const *const pi, PointType *const po);
+  
+  /**
+   * Update ctRoll, stRoll, ctPitch, stPitch, ctYaw, stYaw, tInX, 
+   * tInY, tInZ using the Transform
+   **/ 
   void updateTransformPointCloudSinCos(PointTypePose *tIn) ;
-
+  
+  /**
+   * Transform point cloud using the latest frame tranform
+   **/ 
   pcl::PointCloud<PointType>::Ptr transformPointCloud(
       pcl::PointCloud<PointType>::Ptr cloudIn);
-
+  /**
+   * Self defined point cloud transformation function 
+   * as pcl one did not give good results
+   **/ 
   pcl::PointCloud<PointType>::Ptr transformPointCloud(
       pcl::PointCloud<PointType>::Ptr cloudIn, PointTypePose *transformIn);
-
+  /**
+   * Publish TransformAftMapped to /aft_mapped
+   **/ 
   void publishTF();
+  /**
+   * Publish laserCloudSurfFromMapDS
+   **/ 
   void publishKeyPosesAndFrames();
+  /**
+   * Publish Surf, Corner, Outlier point clouds
+   * of the entire map as one.
+   **/ 
   void publishGlobalMap();
 
-  bool detectLoopClosure();
-  void performLoopClosure();
-
+  // bool detectLoopClosure();
+  // void performLoopClosure();
+  
+  /**
+   * Extract nearest 50 frames as surroundings from 
+   * the mapped environment
+   * */
   void extractSurroundingKeyFrames();
+  /**
+   * Downsample current scan using downsampling filters
+   **/
   void downsampleCurrentScan();
+  /**
+   * Using corner points generate coeffecients 
+   * requred during LM Optimisation using laserCloudCornerLastDS
+   **/
   void cornerOptimization(int iterCount);
+  /**
+   * Using surface points generate coeffecients 
+   * requred during LM Optimisation using laserCloudSurfLastDS
+   **/
   void surfOptimization(int iterCount);
-
+  
+  /**
+   * Perform Levenberg-Marquardt optimisation technique
+   * and update TransformToBeMapped. 
+   * Return true if error acceptable.
+   **/
   bool LMOptimization(int iterCount);
+  /**
+   * Use LM Optimisation and update the transform
+   **/
   void scan2MapOptimization();
-
+  /**
+   * Update TransformAftMapped using latest estimate
+   **/
   void saveKeyFramesAndFactor();
+  /**
+   * Correct poses if loop closure detected
+   **/ 
   void correctPoses();
 
   void clearCloud();
+
+  bool detectLoopClosure();
+  void performLoopClosure();
 
   void subGpsDataHandler(const sensor_msgs::NavSatFix::ConstPtr& msg);
 };

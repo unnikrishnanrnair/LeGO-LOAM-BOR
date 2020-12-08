@@ -1396,6 +1396,7 @@ void MapOptimization::run() {
     {
       std::lock_guard<std::mutex> lock(mtx);
 
+      // Get the latest frames
       laserCloudCornerLast = association.cloud_corner_last;
       laserCloudSurfLast = association.cloud_surf_last;
       laserCloudOutlierLast = association.cloud_outlier_last;
@@ -1403,6 +1404,7 @@ void MapOptimization::run() {
       timeLaserOdometry = association.laser_odometry.header.stamp.toSec();
       timeLastProcessing = timeLaserOdometry;
 
+      // Convert the odometry message to transform (a self-defined float array)
       OdometryToTransform(association.laser_odometry, transformSum);
 
       transformAssociateToMap();

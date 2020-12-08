@@ -8,6 +8,9 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/BetweenFactor.h>
 
+/**
+ * Function to save the graph, point clouds and gps data
+ **/
 void dump(const std::string& dump_directory,
   const gtsam::ISAM2& isam,
   const gtsam::Values& isam_current_estimate,
@@ -20,9 +23,10 @@ void dump(const std::string& dump_directory,
   const std::vector<sensor_msgs::NavSatFix>& gps_data
 ) {
   boost::filesystem::create_directories(dump_directory);
-
+  
+  // Save the graph
   std::vector<gtsam::Pose3> keyframe_poses(isam_current_estimate.size());
-
+  
   std::ofstream graph_ofs(dump_directory + "/graph.g2o");
   for(const auto& vertex : isam_current_estimate) {
     Eigen::Matrix4d pose = vertex.value.cast<gtsam::Pose3>().matrix();
@@ -55,7 +59,8 @@ void dump(const std::string& dump_directory,
       graph_ofs << "\n";
     }
   }
-
+  
+  // Save the Point Clouds
   for(int i = 0; i < corner_cloud_keyframes.size(); i++) {
     std::string keyframe_directory = (boost::format("%s/%06d") % dump_directory % i).str();
     boost::filesystem::create_directories(keyframe_directory);
@@ -100,7 +105,8 @@ void dump(const std::string& dump_directory,
 
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses3D.pcd", *cloudKeyPoses3D);
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses6D.pcd", *cloudKeyPoses6D);
-
+  
+  // Save GPS Data
   std::ofstream gps_data_ofs(dump_directory + "/gps_data.txt");
 
   for(int i=0; i<gps_data.size(); i++){
