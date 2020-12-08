@@ -377,7 +377,7 @@ void MapOptimization::transformUpdate() {
 
   for (int i = 0; i < 6; i++) {
     transformBefMapped[i] = transformSum[i];
-    transformAftMapped[i] = transformTobeMapped[i];
+    transformAftMapped[i] = transformTobeMapped[i]; // The updated value
   }
 }
 
@@ -1021,7 +1021,7 @@ void MapOptimization::saveKeyFramesAndFactor() {
 
   previousRobotPosPoint = currentRobotPosPoint;
   /**
-   * update grsam graph
+   * update gtsam graph
    */
   if (cloudKeyPose3DSize==0) {
     gtSAMgraph.add(PriorFactor<Pose3>(
@@ -1120,6 +1120,7 @@ void MapOptimization::run() {
     {
       std::lock_guard<std::mutex> lock(mtx);
 
+      // Get the latest frames
       laserCloudCornerLast = association.cloud_corner_last;
       laserCloudSurfLast = association.cloud_surf_last;
       laserCloudOutlierLast = association.cloud_outlier_last;
@@ -1127,6 +1128,7 @@ void MapOptimization::run() {
       timeLaserOdometry = association.laser_odometry.header.stamp.toSec();
       timeLastProcessing = timeLaserOdometry;
 
+      // Convert the odometry message to transform (a self-defined float array)
       OdometryToTransform(association.laser_odometry, transformSum);
 
       transformAssociateToMap();
