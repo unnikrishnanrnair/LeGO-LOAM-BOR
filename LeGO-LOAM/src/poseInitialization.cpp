@@ -42,19 +42,19 @@ void PoseInitialization::readPoseFromFile(){
 
 	geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw(init_pose_roll, init_pose_pitch, init_pose_yaw);
 
-	intiPose.pose.pose.orientation.x = geoQuat.x;
-  	intiPose.pose.pose.orientation.y = geoQuat.y;
-  	intiPose.pose.pose.orientation.z = geoQuat.z;
-  	intiPose.pose.pose.orientation.w = geoQuat.w;
-  	intiPose.pose.pose.position.x = init_pose_x;
-  	intiPose.pose.pose.position.y = init_pose_y;
-  	intiPose.pose.pose.position.z = init_pose_z;
+	initPose.pose.pose.orientation.x = geoQuat.x;
+  	initPose.pose.pose.orientation.y = geoQuat.y;
+  	initPose.pose.pose.orientation.z = geoQuat.z;
+  	initPose.pose.pose.orientation.w = geoQuat.w;
+  	initPose.pose.pose.position.x = init_pose_x;
+  	initPose.pose.pose.position.y = init_pose_y;
+  	initPose.pose.pose.position.z = init_pose_z;
 }
 
 void PoseInitialization::publishInitialPose(){
 
 	if(pubInitialPose.getNumSubscribers() != 0){
-  		pubInitialPose.publish(intiPose);
+  		pubInitialPose.publish(initPose);
 	}
 }
 
