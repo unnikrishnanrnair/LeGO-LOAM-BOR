@@ -17,7 +17,7 @@
 
     <rosparam file="$(find lego_loam_bor)/config/loam_config.yaml" command="load"/>
 
-    <node pkg="lego_loam_bor" type="lego_loam_bor"    name="lego_loam_bor"    output="screen" >
+    <node pkg="lego_loam_bor" type="lego_loam_bor_create_map"    name="lego_loam_bor_create_map"    output="screen" >
        <remap from="/lidar_points" to="$(arg lidar_topic)"/>
        <remap from="/imu/data" to="$(arg imu_topic)"/>
        <param name="rosbag"      value="$(arg rosbag)" type="string" />

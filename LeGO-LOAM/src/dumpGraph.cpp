@@ -8,6 +8,9 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/BetweenFactor.h>
 
+/**
+ * Function to save the graph, point clouds and gps data
+ **/
 void dump(const std::string& dump_directory,
   const gtsam::ISAM2& isam,
   const gtsam::Values& isam_current_estimate,
@@ -15,12 +18,15 @@ void dump(const std::string& dump_directory,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& corner_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& surf_cloud_keyframes,
   const std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr>& outlier_cloud_keyframes,
-  const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D
+  const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloudKeyPoses3D,
+  const pcl::PointCloud<PointTypePose>::Ptr& cloudKeyPoses6D,
+  const std::vector<sensor_msgs::NavSatFix>& gps_data
 ) {
   boost::filesystem::create_directories(dump_directory);
-
+  
+  // Save the graph
   std::vector<gtsam::Pose3> keyframe_poses(isam_current_estimate.size());
-
+  
   std::ofstream graph_ofs(dump_directory + "/graph.g2o");
   for(const auto& vertex : isam_current_estimate) {
     Eigen::Matrix4d pose = vertex.value.cast<gtsam::Pose3>().matrix();
@@ -53,7 +59,8 @@ void dump(const std::string& dump_directory,
       graph_ofs << "\n";
     }
   }
-
+  
+  // Save the Point Clouds
   for(int i = 0; i < corner_cloud_keyframes.size(); i++) {
     std::string keyframe_directory = (boost::format("%s/%06d") % dump_directory % i).str();
     boost::filesystem::create_directories(keyframe_directory);
@@ -76,15 +83,15 @@ void dump(const std::string& dump_directory,
     pcl::transformPointCloud(*cloud, *transformed, camera2lidar);
     pcl::io::savePCDFileBinary(keyframe_directory + "/cloud.pcd", *transformed);
 
-    pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
+    // pcl::transformPointCloud(*cloud_corner, *transformed, camera2lidar);
     // cloud = transformPointCloud(cloud, keyframe_poses[i]);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *transformed);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_corner.pcd", *cloud_corner);
 
-    pcl::transformPointCloud(*cloud_surf, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *transformed);
+    // pcl::transformPointCloud(*cloud_surf, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_surf.pcd", *cloud_surf);
 
-    pcl::transformPointCloud(*cloud_outlier, *transformed, camera2lidar);
-    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *transformed);
+    // pcl::transformPointCloud(*cloud_outlier, *transformed, camera2lidar);
+    pcl::io::savePCDFileBinary(keyframe_directory + "/cloud_outlier.pcd", *cloud_outlier);
 
     ros::Time stamp(keyframe_stamps[i]);
 
@@ -97,4 +104,14 @@ void dump(const std::string& dump_directory,
   }
 
   pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses3D.pcd", *cloudKeyPoses3D);
+  pcl::io::savePCDFileBinary(dump_directory + "/cloudKeyPoses6D.pcd", *cloudKeyPoses6D);
+  
+  // Save GPS Data
+  std::ofstream gps_data_ofs(dump_directory + "/gps_data.txt");
+
+  for(int i=0; i<gps_data.size(); i++){
+    gps_data_ofs << gps_data[i].latitude << " " << gps_data[i].longitude << " " << gps_data[i].altitude << " ";
+    gps_data_ofs << gps_data[i].position_covariance[0] << " " << gps_data[i].position_covariance[1] << " " << gps_data[i].position_covariance[2] << " " << gps_data[i].position_covariance[3] << " " << gps_data[i].position_covariance[4] << " " << gps_data[i].position_covariance[5] << " " << gps_data[i].position_covariance[6] << " " << gps_data[i].position_covariance[7] << " " << gps_data[i].position_covariance[8] << " "; 
+    gps_data_ofs << "\n";
+  }
 }

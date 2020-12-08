@@ -1,6 +1,6 @@
 #include "featureAssociation.h"
 #include "imageProjection.h"
-#include "mapOptimization.h"
+#include "mapOptimization_createMap.h"
 #include "transformFusion.h"
 #include "poseInitialization.h"
 #include <chrono>

@@ -44,15 +44,25 @@ link_directories(
 	${GTSAM_LIBRARY_DIRS}
 )
 
-add_executable(lego_loam_bor
+add_executable(lego_loam_bor_localise
     src/imageProjection.cpp
     src/featureAssociation.cpp
-    src/mapOptmization.cpp
+    src/mapOptmization_localise.cpp
     src/transformFusion.cpp
-    src/dumpGraph.cpp
     src/poseInitialization.cpp
-    src/main.cpp)
+    src/main_localise.cpp)
 
-add_dependencies(lego_loam_bor ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
-target_link_libraries(lego_loam_bor ${catkin_LIBRARIES} ${PCL_LIBRARIES} gtsam)
+add_dependencies(lego_loam_bor_localise ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
+target_link_libraries(lego_loam_bor_localise ${catkin_LIBRARIES} ${PCL_LIBRARIES} gtsam)
 
+add_executable(lego_loam_bor_create_map
+    src/imageProjection.cpp
+    src/featureAssociation.cpp
+    src/dumpGraph.cpp
+    src/mapOptmization_createMap.cpp
+    src/transformFusion.cpp
+    src/poseInitialization.cpp
+    src/main_createMap.cpp)
+
+add_dependencies(lego_loam_bor_create_map ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
+target_link_libraries(lego_loam_bor_create_map ${catkin_LIBRARIES} ${PCL_LIBRARIES} gtsam)
