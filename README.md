@@ -103,7 +103,7 @@ roslaunch lego_loam_bor localization.launch rosbag:=/path/to/your/rosbag lidar_t
 
 Change the parameters `rosbag`, `lidar_topic` as needed.
 
-Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalposeRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
+Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
 
 
 Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).
