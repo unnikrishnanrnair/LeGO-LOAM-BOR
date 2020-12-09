@@ -51,7 +51,7 @@ You can use the following commands to download and compile the package.
 
 ```
 cd ~/catkin_ws/src
-git clone https://github.com/facontidavide/LeGO-LOAM-BOR.git
+git clone https://github.com/Nishantgoyal918/LeGO-LOAM-BOR.git
 cd ..
 catkin_make
 ```
@@ -89,13 +89,21 @@ If the point cloud is not projected properly, you will lose many points and perf
 
 ## Run the package
 
-You may process a rosbag using the following command:
+To save map run
 
 ```
-roslaunch lego_loam_bor run.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+roslaunch lego_loam_bor createMap.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+```
+
+To localise using saved map run
+
+```
+roslaunch lego_loam_bor localization.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
 ```
 
 Change the parameters `rosbag`, `lidar_topic` as needed.
+
+Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalposeRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
 
 
 Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).
