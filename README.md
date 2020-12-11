@@ -16,6 +16,11 @@ Localising in a premapped environment
     <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
 </p>
 
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/path_demo.png" alt="drawing" width="385"/>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="415"/>
+</p>
+
 ## About LeGO-LOAM-BOR
 
 This is a fork of the original [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM).
