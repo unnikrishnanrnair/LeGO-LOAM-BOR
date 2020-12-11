@@ -6,6 +6,16 @@ For the other functionalities, see [the original LeGO-LOAM](https://github.com/R
 
 This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LOAM-BOR) as its base due to its speed improvements over the LeGO LOAM and the map saving code.
 
+Saving the map in the first run
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/createMap_demo.gif" alt="drawing" width="800"/>
+</p>
+
+Localising in a premapped environment
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
+</p>
+
 ## About LeGO-LOAM-BOR
 
 This is a fork of the original [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM).
@@ -29,7 +39,7 @@ It outputs 6D pose estimation in real-time. A demonstration of the system can be
 [![Watch the video](/LeGO-LOAM/launch/demo.gif)](https://www.youtube.com/watch?v=O3tz_ftHV48)
 -->
 <p align='center'>
-    <img src="/LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
+    <img src="./LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
 </p>
 
 ## Dependency
