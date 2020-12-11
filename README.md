@@ -6,19 +6,18 @@ For the other functionalities, see [the original LeGO-LOAM](https://github.com/R
 
 This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LOAM-BOR) as its base due to its speed improvements over the LeGO LOAM and the map saving code.
 
-Saving the map in the first run
+### Saving the map in the first run
 <p align='center'>
     <img src="./LeGO-LOAM/launch/createMap_demo.gif" alt="drawing" width="800"/>
 </p>
 
-Localising in a premapped environment
+### Localising in a premapped environment
 <p align='center'>
     <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
 </p>
 
 <p align='center'>
-    <img src="./LeGO-LOAM/launch/path_demo.png" alt="drawing" width="385"/>
-    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="415"/>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="800"/>
 </p>
 
 ## About LeGO-LOAM-BOR
