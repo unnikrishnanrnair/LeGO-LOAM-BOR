@@ -1,15 +1,27 @@
-This is a customized LeGO-LOAM to save the mapping result in the dump format that is readable from [interactive_slam](https://github.com/SMRT-AIST/interactive_slam). After running ```run.launch```, you can find the dumped mapping result at ```/tmp/dump```. For the other functionalities, see [the original LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM) and [facontidavide's fork](https://github.com/facontidavide/LeGO-LOAM-BOR).
+# Localisation in Premapped Environment
 
+This is a customised LeGO-LOAM to save the mapping result during the first run and then localise in a premapped environment for later runs. The map is stored in the dump format readable from [interactive slam](https://github.com/SMRT-AIST/interactive_slam) in the ```/tmp/dump``` folder and is read from the same folder while localising in the premapped environment.
 
-# LeGO-LOAM-BOR
+For the other functionalities, see [the original LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM) and [facontidavide's fork](https://github.com/facontidavide/LeGO-LOAM-BOR).
+
+This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LOAM-BOR) as its base due to its speed improvements over the LeGO LOAM and the map saving code.
+
+### Saving the map in the first run
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/createMap_demo.gif" alt="drawing" width="800"/>
+</p>
+
+### Localising in a premapped environment
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
+</p>
+<p align='center'>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="500" height="400"/>
+</p>
+
+## About LeGO-LOAM-BOR
 
 This is a fork of the original [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM).
-
-This is a "friendly fork", in other words, we will be happy to work with the original authors to merge
-these improvements with the original LeGO-LOAM... if they want to!
-
-The original author deserves all the credits, we just use good software engineering practices to
-make the code more readable and efficient.
 
 The purpose of this fork is:
 
@@ -22,12 +34,7 @@ The purpose of this fork is:
   speed allowed by the CPU and in a deterministic way (usual speed improvement in the order of 5X-10X).
 - As a consequence of the previous point, creating unit and regression tests will be easier.
 
-The purpose of this fork (for the time being) is **not** to modify and/or improve the original algorithm.
-
-Please do not submit to this repository any issue related to the algorithm, since we are focusing on the
-software implementation.
-
-# About the original LeGO-LOAM
+## About the original LeGO-LOAM
 This repository contains code for a lightweight and ground optimized lidar odometry and mapping (LeGO-LOAM) system for ROS compatible UGVs.
 The system takes in point cloud  from a Velodyne VLP-16 Lidar (palced horizontal) and optional IMU data as inputs.
 It outputs 6D pose estimation in real-time. A demonstration of the system can be found here -> https://www.youtube.com/watch?v=O3tz_ftHV48
@@ -35,7 +42,7 @@ It outputs 6D pose estimation in real-time. A demonstration of the system can be
 [![Watch the video](/LeGO-LOAM/launch/demo.gif)](https://www.youtube.com/watch?v=O3tz_ftHV48)
 -->
 <p align='center'>
-    <img src="/LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
+    <img src="./LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
 </p>
 
 ## Dependency
@@ -57,12 +64,12 @@ You can use the following commands to download and compile the package.
 
 ```
 cd ~/catkin_ws/src
-git clone https://github.com/facontidavide/LeGO-LOAM-BOR.git
+git clone https://github.com/Nishantgoyal918/LeGO-LOAM-BOR.git
 cd ..
 catkin_make
 ```
 
-## The system
+## The System
 
 LeGO-LOAM is speficifally optimized for a horizontally placed lidar on a ground vehicle. It assumes there is always a ground plane in the scan. The UGV we are using is Clearpath Jackal.
 
@@ -95,13 +102,21 @@ If the point cloud is not projected properly, you will lose many points and perf
 
 ## Run the package
 
-You may process a rosbag using the following command:
+To save map run
 
 ```
-roslaunch lego_loam_bor run.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+roslaunch lego_loam_bor createMap.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+```
+
+To localise using saved map run
+
+```
+roslaunch lego_loam_bor localization.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
 ```
 
 Change the parameters `rosbag`, `lidar_topic` as needed.
+
+Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
 
 
 Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).
@@ -117,17 +132,3 @@ The VLP-16 rotation rate is set to 10Hz. This data-set features over 20K scans a
 <p align='center'>
     <img src="/LeGO-LOAM/launch/google-earth.png" alt="drawing" width="600"/>  
 </p>
-
-## Cite *LeGO-LOAM*
-
-Thank you for citing our *LeGO-LOAM* paper if you use any of this code: 
-```
-@inproceedings{legoloam2018,
-  title={LeGO-LOAM: Lightweight and Ground-Optimized Lidar Odometry and Mapping on Variable Terrain},
-  author={Tixiao Shan and Brendan Englot},
-  booktitle={IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
-  pages={4758-4765},
-  year={2018},
-  organization={IEEE}
-}
-```
