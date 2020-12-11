@@ -15,9 +15,8 @@ This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LO
 <p align='center'>
     <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
 </p>
-
 <p align='center'>
-    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="800"/>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="500" height="400"/>
 </p>
 
 ## About LeGO-LOAM-BOR
