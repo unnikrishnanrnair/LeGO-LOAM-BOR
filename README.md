@@ -15,8 +15,10 @@ This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LO
 <p align='center'>
     <img src="./LeGO-LOAM/launch/localization_demo.gif" alt="drawing" width="800"/>
 </p>
+
 <p align='center'>
-    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="500" height="400"/>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="330" height="400"/>
+    <img src="./LeGO-LOAM/launch/error_on_lego_premapped.png" alt="drawing" width="470" height="400"/>
 </p>
 
 ## Dependency
