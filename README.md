@@ -19,6 +19,52 @@ This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LO
     <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="500" height="400"/>
 </p>
 
+## Dependency
+
+- [ROS](http://wiki.ros.org/ROS/Installation) (tested with indigo and kinetic)
+- [gtsam](https://github.com/borglab/gtsam/releases) (Georgia Tech Smoothing and Mapping library, 4.0.0-alpha2)
+  ```
+  wget -O ~/Downloads/gtsam.zip https://github.com/borglab/gtsam/archive/4.0.0-alpha2.zip
+  cd ~/Downloads/ && unzip gtsam.zip -d ~/Downloads/
+  cd ~/Downloads/gtsam-4.0.0-alpha2/
+  mkdir build && cd build
+  cmake ..
+  sudo make install
+  ```
+
+## Compile
+
+You can use the following commands to download and compile the package.
+
+```
+cd ~/catkin_ws/src
+git clone https://github.com/Nishantgoyal918/LeGO-LOAM-BOR.git
+cd ..
+catkin_make
+```
+
+## Run the package
+
+To save map run
+
+```
+roslaunch lego_loam_bor createMap.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+```
+
+To localise using saved map run
+
+```
+roslaunch lego_loam_bor localization.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+```
+
+Change the parameters `rosbag`, `lidar_topic` as needed.
+
+Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
+
+
+Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).
+
+
 ## About LeGO-LOAM-BOR
 
 This is a fork of the original [LeGO-LOAM](https://github.com/RobustFieldAutonomyLab/LeGO-LOAM).
@@ -44,30 +90,6 @@ It outputs 6D pose estimation in real-time. A demonstration of the system can be
 <p align='center'>
     <img src="./LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
 </p>
-
-## Dependency
-
-- [ROS](http://wiki.ros.org/ROS/Installation) (tested with indigo and kinetic)
-- [gtsam](https://github.com/borglab/gtsam/releases) (Georgia Tech Smoothing and Mapping library, 4.0.0-alpha2)
-  ```
-  wget -O ~/Downloads/gtsam.zip https://github.com/borglab/gtsam/archive/4.0.0-alpha2.zip
-  cd ~/Downloads/ && unzip gtsam.zip -d ~/Downloads/
-  cd ~/Downloads/gtsam-4.0.0-alpha2/
-  mkdir build && cd build
-  cmake ..
-  sudo make install
-  ```
-
-## Compile
-
-You can use the following commands to download and compile the package.
-
-```
-cd ~/catkin_ws/src
-git clone https://github.com/Nishantgoyal918/LeGO-LOAM-BOR.git
-cd ..
-catkin_make
-```
 
 ## The System
 
@@ -100,26 +122,6 @@ If the point cloud is not projected properly, you will lose many points and perf
 
 **The IMU has been remove from the original code.** Deal with it.
 
-## Run the package
-
-To save map run
-
-```
-roslaunch lego_loam_bor createMap.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
-```
-
-To localise using saved map run
-
-```
-roslaunch lego_loam_bor localization.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
-```
-
-Change the parameters `rosbag`, `lidar_topic` as needed.
-
-Initial position of the vehcile can also be defined in ```/LeGO-LOAM-BOR/LeGO-LOAM/initalRobotPose.txt``` (6 space separated values in order x, y, z, roll, pitch, yaw)
-
-
-Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).
 
 ## New data-set
 
