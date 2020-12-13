@@ -1,3 +1,5 @@
+# Generating Ground Truth Readings
+
 This branch is for generating the ground truth map that can be used to quantify the results of the localisation. 
 
 We use Carla ( Gazebo can also be used ) to generate the lidar data which is sent to the code which generates the map, by merging each frame recieved according to the localisation values from the Carla bag file. The map is saved in the ``` /tmp/dump ``` directory just like the original code. This ground truth coordinates are published as a rostopic. These can be used to generate error values using [the following repo](https://github.com/ShrinivasSK/SLAM_Error_Calculator). 
