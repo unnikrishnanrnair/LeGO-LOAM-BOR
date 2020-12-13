@@ -52,6 +52,11 @@ class MapOptimization {
   */
   void run();
 
+  /**
+  * Handler for odometry data
+  */ 
+  void subVehicleOdomHandler(const nav_msgs::Odometry::ConstPtr& msg);
+
  private:
 
   ros::NodeHandle& nh;
@@ -122,7 +127,7 @@ class MapOptimization {
   int laserCloudOutlierLastDSNum;
   int laserCloudSurfTotalLastDSNum;
 
-  ros::Subscriber subVehicleOdom;
+  //ros::Subscriber subVehicleOdom;
   nav_msgs::Odometry tempVehicleOdomMsg;
 
   pcl::PointCloud<PointType>::Ptr fullCloudMap;
@@ -151,10 +156,6 @@ class MapOptimization {
   * Function to check whether the car has moved enough to save the new frame
   */ 
   bool doWeSave(nav_msgs::Odometry true_transform);
-  /**
-  * Handler for odometry data
-  */ 
-  void subVehicleOdomHandler(const nav_msgs::Odometry::ConstPtr& msg);
 };
 
 #endif // MAPOPTIMIZATION_H

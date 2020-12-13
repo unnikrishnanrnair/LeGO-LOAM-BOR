@@ -15,10 +15,10 @@ We use Carla ( Gazebo can also be used ) to generate the lidar data which is sen
 You may process a rosbag using the following command:
 
 ```
-roslaunch lego_loam_bor run.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points
+roslaunch lego_loam_bor run.launch rosbag:=/path/to/your/rosbag lidar_topic:=/velodyne_points odom_topic:=/vehicle_odom
 ```
 
-Change the parameters `rosbag`, `lidar_topic` as needed.
+Change the parameters `rosbag`, `lidar_topic`, `odom_topic` as needed.
 
 
 Some sample bags can be downloaded from [here](https://github.com/RobustFieldAutonomyLab/jackal_dataset_20170608).

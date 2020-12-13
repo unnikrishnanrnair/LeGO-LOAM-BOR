@@ -50,7 +50,7 @@ MapOptimization::MapOptimization(ros::NodeHandle &node,
 
   allocateMemory();
 
-  subVehicleOdom = nh.subscribe<nav_msgs::Odometry>("/vehicle_odom", 10, &MapOptimization::subVehicleOdomHandler, this);
+  //subVehicleOdom = nh.subscribe<nav_msgs::Odometry>("/vehicle_odom", 10, &MapOptimization::subVehicleOdomHandler, this);
   _run_thread = std::thread(&MapOptimization::run, this);
 
   cloudKeyPose3DSize=0;

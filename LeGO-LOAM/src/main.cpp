@@ -15,10 +15,12 @@ int main(int argc, char** argv) {
   std::string rosbag;
   std::string imu_topic;
   std::string lidar_topic;
+  std::string odom_topic;
 
   nh.getParam("rosbag", rosbag);
   nh.getParam("imu_topic", imu_topic);
   nh.getParam("lidar_topic", lidar_topic);
+  nh.getParam("odom_topic", odom_topic);
 
   bool use_rosbag = false;
 
@@ -58,6 +60,7 @@ int main(int argc, char** argv) {
     std::vector<std::string> topics;
     topics.push_back(imu_topic);
     topics.push_back(lidar_topic);
+    topics.push_back(odom_topic);
 
     rosbag::View view(bag, rosbag::TopicQuery(topics));
 
@@ -75,6 +78,11 @@ int main(int argc, char** argv) {
       if (cloud != NULL){
         IP.cloudHandler(cloud);
         //ROS_INFO("cloud");
+      }
+
+      const nav_msgs::Odometry::ConstPtr& odom_msg = m.instantiate<nav_msgs::Odometry>();
+      if(odom_msg != NULL){
+        MO.subVehicleOdomHandler(odom_msg);
       }
 
       rosgraph_msgs::Clock clock_msg;
