@@ -7,15 +7,29 @@
 #include <Eigen/Eigenvalues>
 #include <Eigen/QR>
 
+/**
+ * Feature Association
+ * 
+ * Extracts the surface and edge features for the laser scan
+ * Takes input from imageProjection
+ * Also computes and broadcasts the laser odometry
+ */
 class FeatureAssociation {
 
  public:
+  
+  /**
+   * Default Constructor
+   */
   FeatureAssociation( ros::NodeHandle& node,
                      Channel<ProjectionOut>& input_channel,
                      Channel<AssociationOut>& output_channel);
 
   ~FeatureAssociation();
 
+  /**
+   * Main Function
+   */
   void runFeatureAssociation();
 
  private:
@@ -40,13 +54,13 @@ class FeatureAssociation {
   ros::Publisher pubSurfPointsFlat;
   ros::Publisher pubSurfPointsLessFlat;
 
-  pcl::PointCloud<PointType>::Ptr segmentedCloud;
-  pcl::PointCloud<PointType>::Ptr outlierCloud;
+  pcl::PointCloud<PointType>::Ptr segmentedCloud; // stores the segmented cloud
+  pcl::PointCloud<PointType>::Ptr outlierCloud; // stores the outlier cloud
 
-  pcl::PointCloud<PointType>::Ptr cornerPointsSharp;
-  pcl::PointCloud<PointType>::Ptr cornerPointsLessSharp;
-  pcl::PointCloud<PointType>::Ptr surfPointsFlat;
-  pcl::PointCloud<PointType>::Ptr surfPointsLessFlat;
+  pcl::PointCloud<PointType>::Ptr cornerPointsSharp; // stores sharp corner features
+  pcl::PointCloud<PointType>::Ptr cornerPointsLessSharp; // stores less sharp corner features
+  pcl::PointCloud<PointType>::Ptr surfPointsFlat; // stores flat surface features
+  pcl::PointCloud<PointType>::Ptr surfPointsLessFlat; // stores less flat surface features
 
   pcl::PointCloud<PointType>::Ptr surfPointsLessFlatScan;
   pcl::PointCloud<PointType>::Ptr surfPointsLessFlatScanDS;
@@ -86,16 +100,16 @@ class FeatureAssociation {
   std::vector<float> pointSearchSurfInd2;
   std::vector<float> pointSearchSurfInd3;
 
-  float transformCur[6];
-  float transformSum[6];
+  float transformCur[6]; // stores the current transform of vehcile (considering starting point sa origin)
+  float transformSum[6]; // stores the current transform after integration with initial position
 
-  pcl::PointCloud<PointType>::Ptr laserCloudCornerLast;
-  pcl::PointCloud<PointType>::Ptr laserCloudSurfLast;
-  pcl::PointCloud<PointType>::Ptr laserCloudOri;
+  pcl::PointCloud<PointType>::Ptr laserCloudCornerLast;  // stores corner features of previous scan
+  pcl::PointCloud<PointType>::Ptr laserCloudSurfLast; // stores surface features of previous scan
+  pcl::PointCloud<PointType>::Ptr laserCloudOri; 
   pcl::PointCloud<PointType>::Ptr coeffSel;
 
-  nanoflann::KdTreeFLANN<PointType> kdtreeCornerLast;
-  nanoflann::KdTreeFLANN<PointType> kdtreeSurfLast;
+  nanoflann::KdTreeFLANN<PointType> kdtreeCornerLast; // kd tree for finding corresponding corner features
+  nanoflann::KdTreeFLANN<PointType> kdtreeSurfLast; // kd tree for finding corresponding surface features
 
   std::vector<int> pointSearchInd;
   std::vector<float> pointSearchSqDis;
@@ -111,33 +125,149 @@ class FeatureAssociation {
   size_t _cycle_count;
 
  private:
+
+  /**
+   * initializes all the parameters
+   */
   void initializationValue();
+  
+  /**
+   * adjust the segmented cloud distortion
+   *
+   * DISTORTION:
+   *  x is y
+   *  y is z
+   *  z is x
+   */
   void adjustDistortion();
+  
+  /**
+   * calculates the smoothness value for each point
+   */
   void calculateSmoothness();
+  
+  /**
+   * marks the occluded points in current scan
+   */
   void markOccludedPoints();
+  
+  /**
+   * extracts the surface and corner features 
+   */
   void extractFeatures();
 
+ 
+
+  /**
+   * 
+   */
   void TransformToStart(PointType const *const pi, PointType *const po);
+  
+  /**
+   *
+   */
   void TransformToEnd(PointType const *const pi, PointType *const po);
 
+
+  
+  /**
+   * Finds the relative rotation between (cx, cy, cz) and (lx, ly, lz)
+   */
   void AccumulateRotation(float cx, float cy, float cz, float lx, float ly,
                           float lz, float &ox, float &oy, float &oz);
 
+
+
+  /**
+   * finds the corner features corresponding to current scan corner features.
+   */ 
   void findCorrespondingCornerFeatures(int iterCount);
+  
+  /**
+   * finds the surf features corresponding to current scan corner features.
+   */
   void findCorrespondingSurfFeatures(int iterCount);
 
+
+
+  /**
+   * calculates the relative tranform using current surface features and their corresponding surface features (from previous scans). 
+   *
+   * calculates roll, pitch, tz
+   */
   bool calculateTransformationSurf(int iterCount);
+  
+  /**
+   * calculates the relative tranform using current corner features and their corresponding corner features (from previous scans). 
+   *
+   * calculates tx, ty, yaw
+   */
   bool calculateTransformationCorner(int iterCount);
+  
+  /**
+   * calculates the relative tranform using current features and their corresponding features (from previous scans). 
+   *
+   * calculates roll, pitch, yaw, tx, ty and tz
+   */
   bool calculateTransformation(int iterCount);
 
+  
+
+  /**
+   * initializes parameters and kdTrees for finding corresponding feautures.
+   */
   void checkSystemInitialization();
+  
+  /**
+   * finds the relative transform with the previous scan and updates the current transform accordingly
+   */
   void updateTransformation();
 
+
+
+  /**
+   * integrates the vehicles initial transformation with current tranformation.
+   *
+   * stores the integrated transform in transformSum
+   */
   void integrateTransformation();
+  
+  /**
+   * publishes cloud for visualization
+   *
+   * publishes:
+   *  cornerPointsSharp
+   *  cornerPointsLessSharp
+   *  surfPointsFlat
+   *  surfPointsLessFlat
+   */
   void publishCloud();
+  
+  /**
+   * Broadcasts the integrated transform stored in transformSum (laser odometry)
+   */
   void publishOdometry();
 
+  
+
+  /**
+   * adjusts the distortion in outlier cloud
+   *
+   * DISTORTION:
+   *  x is y
+   *  y is z
+   *  z is x
+   */
   void adjustOutlierCloud();
+  
+  /**
+   * publishes cloud to mapOptimization
+   *
+   * publishes:
+   *  outlierCloud
+   *  laserCloudCornerLast
+   *  laserCloudSurfLast
+   */
   void publishCloudsLast();
 
 };
