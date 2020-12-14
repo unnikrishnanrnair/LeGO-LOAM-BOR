@@ -17,7 +17,7 @@ This code uses this [LeGO-LOAM-BOR repository](https://github.com/koide3/LeGO-LO
 </p>
 
 <p align='center'>
-    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="330" height="400"/>
+    <img src="./LeGO-LOAM/launch/map_demo.png" alt="drawing" width="500" height="400"/>
 </p>
 
 ## Results
