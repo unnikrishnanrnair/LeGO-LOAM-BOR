@@ -1,4 +1,10 @@
-# Localisation in Premapped Environment
+# Localisation in Premapped Environment (works for Ubuntu 20.04)
+Do this first :
+modify file /usr/include/pcl-1.10/pcl/filters/voxel_grid.h line 340 and line 669
+old:
+for (Eigen::Index ni = 0; ni < relative_coordinates.cols (); ni++)
+new:
+for (int ni = 0; ni < relative_coordinates.cols (); ni++) (edited) 
 
 This is a customised LeGO-LOAM to save the mapping result during the first run and then localise in a premapped environment for later runs. The map is stored in the dump format readable from [interactive slam](https://github.com/SMRT-AIST/interactive_slam) in the ```/tmp/dump``` folder and is read from the same folder while localising in the premapped environment.
 
